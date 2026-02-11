@@ -1,0 +1,11 @@
+{
+  "name": "pno_website",
+  "version": "1.0.0",
+  "description": "Web project voor pno_1b.",
+  "main": "src/index.html",
+  "scripts": {
+    "start": "live-server src"
+  },
+  "author": "",
+  "license": "ISC"
+}

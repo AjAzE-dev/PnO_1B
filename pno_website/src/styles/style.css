@@ -1,0 +1,62 @@
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.container {
+  position: relative;
+  width: min(80vw, 600px);
+  height: calc(min(80vw, 600px) * 5 / 7);
+  background: #f9f9f9;
+  border: 1px solid black;
+}
+
+/* lijnen */
+.line {
+  position: absolute;
+  background-color: black;
+}
+
+.line.horizontal {
+  height: 2px;
+  width: 100%;
+}
+
+.line.vertical {
+  width: 2px;
+  height: 100%;
+}
+
+/* bolletjes */
+.bol {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: white;
+  border: 2px solid black;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  transition: background-color 0.2s;
+}
+
+
+/* save knop */
+#saveBtn {
+    background-color: transparent;
+    border: 2px solid blue;
+    padding: 0.5rem;
+    font-size: 1.2rem;
+    border-radius: 1.2rem;
+}
+#saveBtn:hover {
+    cursor: pointer;
+}
+#saveBtn:active {
+    background-color: rgb(225, 225, 225);
+}

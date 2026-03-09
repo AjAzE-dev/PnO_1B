@@ -2,6 +2,7 @@ import socketpool
 import wifi
 import time
 import digitalio
+import board
 from adafruit_httpserver import Server, Request, Response, GET, Websocket
 
 
@@ -10,6 +11,9 @@ PASSWORD = "wachtwoord110"  #Verander voor veiligheidsredenen
 
 pin0 = digitalio.DigitalInOut(board.GP0) 
 pin0.direction = digitalio.Direction.OUTPUT
+
+pin1 = digitalio.DigitalInOut(board.GP1) 
+pin1.direction = digitalio.Direction.OUTPUT
 
 wifi.radio.start_ap(ssid=SSID, password=PASSWORD)
 
@@ -46,5 +50,14 @@ while True:
             if data.strip() == "move_forward":
                 print("TURNING MOTOR ON")
                 pin0.value = True
+                pin1.value = False
+            if data.strip() == "move_left":
+                print("TURNING MOTOR OFF")
+                pin0.value = False
+                pin1.value = False
+            if data.strip() == "move_down":
+                print("TURNING MOTOR OFF")
+                pin0.value = True
+                pin1.value = True
 
     time.sleep(0.1)

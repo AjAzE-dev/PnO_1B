@@ -97,7 +97,7 @@ grid = [
 
 total_greens = sum(row.count(2) for row in grid)
 start = (0,0)
-end = (3,4)
+end = (0,3)
 
 visited = [[False]*len(grid[0]) for _ in range(len(grid))]
 greens = set()

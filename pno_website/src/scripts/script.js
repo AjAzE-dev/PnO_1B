@@ -63,9 +63,9 @@ for (let r = 1; r < rows; r++) {
         bol.style.left = `${(c / cols) * 100}%`;
         bol.style.top = `${(r / rows) * 100}%`;
         bol.addEventListener('click', () => {
-            let clicks = (parseInt(bol.dataset.clicks) + 1) % 3;
+            let clicks = (parseInt(bol.dataset.clicks) + 1) % 5;
             bol.dataset.clicks = clicks;
-            bol.style.backgroundColor = ['white', 'red', 'green'][clicks];
+            bol.style.backgroundColor = ['white', 'red', 'green', 'blue', 'purple'][clicks];
         });
         container.appendChild(bol);
         bolletjes.push({ element: bol, row: r, col: c });
@@ -83,8 +83,20 @@ saveBtn.addEventListener('click', () => {
         grid.push(rowArray);
     }
 
-    const start = [0, 0];
-    const end = [3, 5];
+    let start = null;
+    let end = null;
+    for (let r = 0; r < grid.length; r++) {
+        for (let c = 0; c < grid[0].length; c++) {
+            if (grid[r][c] === 3) start = [r, c];
+            if (grid[r][c] === 4) end = [r, c];
+        }
+    }
+
+    if (!start || !end) {
+        document.getElementById('result').innerHTML = 'Please set exactly one start (blue) and one end (purple).';
+        return;
+    }
+
     const totalGreens = grid.flat().filter(cell => cell === 2).length;
 
     bestPath = null;

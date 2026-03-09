@@ -2,10 +2,22 @@ body {
   margin: 0;
   height: 100vh;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 20px;
+}
+
+.left {
+  flex: 1;
+  padding: 20px;
+  text-align: center;
+}
+
+.right {
+  flex: 1;
+  display: flex;
+  justify-content: center;
 }
 
 .container {

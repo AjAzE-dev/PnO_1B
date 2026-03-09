@@ -4,6 +4,43 @@ const rows = 5;
 const cols = 7;
 const bolletjes = [];
 
+function backtrack(grid, r, c, end, visited, greens, path, totalGreens, start) {
+    const rows = grid.length;
+    const cols = grid[0].length;
+
+    if (r < 0 || r >= rows || c < 0 || c >= cols) return;
+    if (grid[r][c] === 1 || visited[r][c]) return;
+    if (bestPath !== null && path.length >= bestPath.length) return;
+
+    visited[r][c] = true;
+    path.push([r, c]);
+
+    let addedGreen = false;
+    if (grid[r][c] === 2 && !greens.has(`${r},${c}`)) {
+        greens.add(`${r},${c}`);
+        addedGreen = true;
+    }
+
+    if (r === end[0] && c === end[1] && greens.size === totalGreens) {
+        if (bestPath === null || path.length < bestPath.length) {
+            bestPath = path.slice();
+        }
+    } else {
+        const directions = [[1,0], [-1,0], [0,1], [0,-1]];
+        for (let [dr, dc] of directions) {
+            backtrack(grid, r + dr, c + dc, end, visited, greens, path, totalGreens, start);
+        }
+    }
+
+    if (addedGreen) {
+        greens.delete(`${r},${c}`);
+    }
+    visited[r][c] = false;
+    path.pop();
+}
+
+let bestPath = null;
+
 for (let r = 0; r <= rows; r++) {
     const line = document.createElement('div');
     line.className = 'line horizontal';
@@ -28,7 +65,7 @@ for (let r = 1; r < rows; r++) {
         bol.addEventListener('click', () => {
             let clicks = (parseInt(bol.dataset.clicks) + 1) % 3;
             bol.dataset.clicks = clicks;
-            bol.style.backgroundColor = ['white', 'green', 'red'][clicks];
+            bol.style.backgroundColor = ['white', 'red', 'green'][clicks];
         });
         container.appendChild(bol);
         bolletjes.push({ element: bol, row: r, col: c });
@@ -37,29 +74,30 @@ for (let r = 1; r < rows; r++) {
 
 saveBtn.addEventListener('click', () => {
     const grid = [];
-    for (let r = 1; r < rows; r++) {
+    for (let r = 0; r < 4; r++) {
         const rowArray = [];
-        for (let c = 1; c < cols; c++) {
-            const b = bolletjes.find(item => item.row === r && item.col === c);
+        for (let c = 0; c < 6; c++) {
+            const b = bolletjes.find(item => item.row === r+1 && item.col === c+1);
             rowArray.push(parseInt(b.element.dataset.clicks));
         }
         grid.push(rowArray);
     }
 
-    console.log("Grid data die verzonden wordt:");
-    console.table(grid);
+    const start = [0, 0];
+    const end = [3, 5];
+    const totalGreens = grid.flat().filter(cell => cell === 2).length;
 
-    fetch("http://192.168.4.1/set_pions", {
-        method: "POST",
-        mode: "cors", // Expliciet aangeven
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ grid: grid })
-    })
-    .then(res => {
-        console.log("Server reageert!");
-        alert("Succes!");
-    })
-    .catch(err => {
-        console.error("CORS of Netwerkfout. Check of je Pico de juiste headers stuurt.");
-    });
+    bestPath = null;
+    const visited = Array.from({length: grid.length}, () => Array(grid[0].length).fill(false));
+    const greens = new Set();
+    const path = [];
+
+    backtrack(grid, start[0], start[1], end, visited, greens, path, totalGreens, start);
+
+    const resultDiv = document.getElementById('result');
+    if (bestPath) {
+        resultDiv.innerHTML = `Shortest valid path: ${JSON.stringify(bestPath)}<br>Length: ${bestPath.length}`;
+    } else {
+        resultDiv.innerHTML = 'No valid path';
+    }
 });

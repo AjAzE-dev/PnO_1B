@@ -1,11 +1,15 @@
 import socketpool
 import wifi
 import time
+import digitalio
 from adafruit_httpserver import Server, Request, Response, GET, Websocket
 
 
 SSID = "PICO-TEAM-110"  #Verander X naar groepsnummer
 PASSWORD = "wachtwoord110"  #Verander voor veiligheidsredenen
+
+pin0 = digitalio.DigitalInOut(board.GP0) 
+pin0.direction = digitalio.Direction.OUTPUT
 
 wifi.radio.start_ap(ssid=SSID, password=PASSWORD)
 
@@ -37,6 +41,10 @@ while True:
     if websocket is not None:
         data = websocket.receive(fail_silently=True)
         if data is not None:
-            print(data)
-            websocket.send_message(data, fail_silently=True)
+            print("RECEIVED:", repr(data))
+
+            if data.strip() == "move_forward":
+                print("TURNING MOTOR ON")
+                pin0.value = True
+
     time.sleep(0.1)

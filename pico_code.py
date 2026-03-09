@@ -15,8 +15,6 @@ pin0.direction = digitalio.Direction.OUTPUT
 pin1 = digitalio.DigitalInOut(board.GP1) 
 pin1.direction = digitalio.Direction.OUTPUT
 
-black_line = 0
-
 wifi.radio.start_ap(ssid=SSID, password=PASSWORD)
 
 # print IP adres
@@ -48,8 +46,6 @@ while True:
         data = websocket.receive(fail_silently=True)
         if data is not None:
             print("RECEIVED:", repr(data))
-            
-            if 
 
             if data.strip() == "move_forward":
                 print("TURNING MOTOR ON")

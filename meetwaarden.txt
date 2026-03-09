@@ -7,4 +7,5 @@ Rechtsvoor (GP26):
     zwart:   0.5 - 0.7
 
 Achter (GP26):
-    wit: 
+    wit: 1.4 - 1.6
+    zwart: 0.8 - 0.9

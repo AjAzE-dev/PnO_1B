@@ -9,11 +9,17 @@ from adafruit_httpserver import Server, Request, Response, GET, Websocket
 SSID = "PICO-TEAM-110"  #Verander X naar groepsnummer
 PASSWORD = "wachtwoord110"  #Verander voor veiligheidsredenen
 
-pin0 = digitalio.DigitalInOut(board.GP0) 
-pin0.direction = digitalio.Direction.OUTPUT
+right_power = digitalio.DigitalInOut(board.GP0) 
+right_power.direction = digitalio.Direction.OUTPUT
 
-pin1 = digitalio.DigitalInOut(board.GP1) 
-pin1.direction = digitalio.Direction.OUTPUT
+right_direction = digitalio.DigitalInOut(board.GP1) 
+right_direction.direction = digitalio.Direction.OUTPUT
+
+left_power = digitalio.DigitalInOut(board.GP1) 
+left_power.direction = digitalio.Direction.OUTPUT
+
+left_direction = digitalio.DigitalInOut(board.GP1) 
+left_direction.direction = digitalio.Direction.OUTPUT
 
 wifi.radio.start_ap(ssid=SSID, password=PASSWORD)
 
@@ -49,15 +55,23 @@ while True:
 
             if data.strip() == "move_forward":
                 print("TURNING MOTOR ON")
-                pin0.value = True
-                pin1.value = False
+                right_power.value = True
+                right_direction.value = True
             if data.strip() == "move_left":
-                print("TURNING MOTOR OFF")
-                pin0.value = False
-                pin1.value = False
+                right_power.value = True
+                left_power.value = True
+                right_direction.value = True
+                left_direction.value = False
             if data.strip() == "move_down":
-                print("TURNING MOTOR OFF")
-                pin0.value = True
-                pin1.value = True
+                right_direction.value = True
+                right_direction.value = False
+            if data.strip() == "move_right":
+                right_power.value = True
+                left_power.value = True
+                right_direction.value = False
+                left_direction.value = True
+            if data.strip() == "stop":
+               right_power.value = False
+               left_power.value = False 
 
     time.sleep(0.1)

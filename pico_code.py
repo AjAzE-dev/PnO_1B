@@ -15,10 +15,10 @@ right_power.direction = digitalio.Direction.OUTPUT
 right_direction = digitalio.DigitalInOut(board.GP1) 
 right_direction.direction = digitalio.Direction.OUTPUT
 
-left_power = digitalio.DigitalInOut(board.GP1) 
+left_power = digitalio.DigitalInOut(board.GP2) 
 left_power.direction = digitalio.Direction.OUTPUT
 
-left_direction = digitalio.DigitalInOut(board.GP1) 
+left_direction = digitalio.DigitalInOut(board.GP3) 
 left_direction.direction = digitalio.Direction.OUTPUT
 
 wifi.radio.start_ap(ssid=SSID, password=PASSWORD)
@@ -57,6 +57,8 @@ while True:
                 print("TURNING MOTOR ON")
                 right_power.value = True
                 right_direction.value = True
+                left_power.value = True
+                left_direction.value = True
             if data.strip() == "move_left":
                 right_power.value = True
                 left_power.value = True
@@ -65,6 +67,8 @@ while True:
             if data.strip() == "move_down":
                 right_direction.value = True
                 right_direction.value = False
+                left_power.value = True
+                left_direction.value = False
             if data.strip() == "move_right":
                 right_power.value = True
                 left_power.value = True

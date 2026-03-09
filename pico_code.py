@@ -80,9 +80,9 @@ while True:
                 right_direction.value = True
                 left_power.value = True
                 left_direction.value = True
-                if meetpin_achter == "zwart" and volgende_vakje == links:
+                if (meetpin_achter > 0.8 and meetpin_achter < 0.9) and volgende_vakje == links:
                     draai_links()
-                elif meetpin_achter == "zwart" and volgende_vakje == rechts:
+                elif (meetpin_achter > 0.8 and meetpin_achter < 0.9) and volgende_vakje == rechts:
                     draai_rechts()
             
             """

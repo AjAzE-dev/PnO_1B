@@ -5,6 +5,7 @@ const cols = 7;
 const bolletjes = [];
 
 function backtrack(grid, r, c, end, visited, greens, path, totalGreens, start) {
+    //het algoritme is zelf gemaakt in python en door AI omgezet in javascript
     const rows = grid.length;
     const cols = grid[0].length;
 

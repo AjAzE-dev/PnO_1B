@@ -3,9 +3,11 @@ const saveBtn = document.getElementById('saveBtn');
 const rows = 5;
 const cols = 7;
 const bolletjes = [];
+let bestPath = null;
+let lastPath = null;
+let ws = null;
 
 function backtrack(grid, r, c, end, visited, greens, path, totalGreens, start) {
-    //het algoritme is zelf gemaakt in python en door AI omgezet in javascript
     const rows = grid.length;
     const cols = grid[0].length;
 
@@ -40,8 +42,7 @@ function backtrack(grid, r, c, end, visited, greens, path, totalGreens, start) {
     path.pop();
 }
 
-let bestPath = null;
-
+// Grid lijnen tekenen
 for (let r = 0; r <= rows; r++) {
     const line = document.createElement('div');
     line.className = 'line horizontal';
@@ -56,6 +57,7 @@ for (let c = 0; c <= cols; c++) {
     container.appendChild(line);
 }
 
+// Bolletjes aanmaken
 for (let r = 1; r < rows; r++) {
     for (let c = 1; c < cols; c++) {
         const bol = document.createElement('div');
@@ -73,6 +75,7 @@ for (let r = 1; r < rows; r++) {
     }
 }
 
+// Pad berekenen
 saveBtn.addEventListener('click', () => {
     const grid = [];
     for (let r = 0; r < 4; r++) {
@@ -95,6 +98,7 @@ saveBtn.addEventListener('click', () => {
 
     if (!start || !end) {
         document.getElementById('result').innerHTML = 'Please set exactly one start (blue) and one end (purple).';
+        document.getElementById('sendBtn').disabled = true;
         return;
     }
 
@@ -109,8 +113,46 @@ saveBtn.addEventListener('click', () => {
 
     const resultDiv = document.getElementById('result');
     if (bestPath) {
+        lastPath = bestPath;
         resultDiv.innerHTML = `Shortest valid path: ${JSON.stringify(bestPath)}<br>Length: ${bestPath.length}`;
+        document.getElementById('sendBtn').disabled = false;
     } else {
+        lastPath = null;
         resultDiv.innerHTML = 'No valid path';
+        document.getElementById('sendBtn').disabled = true;
     }
+});
+
+// Pad versturen naar Pico
+document.getElementById('sendBtn').addEventListener('click', () => {
+    if (!lastPath) return;
+
+    const ip = document.getElementById('picoIP').value.trim();
+    if (!ip) {
+        alert('Vul het IP-adres van de Pico in.');
+        return;
+    }
+
+    const resultDiv = document.getElementById('result');
+
+    if (ws && ws.readyState !== WebSocket.CLOSED) {
+        ws.close();
+    }
+
+    ws = new WebSocket(`ws://${ip}/connect-websocket`);
+
+    ws.onopen = () => {
+        const message = JSON.stringify(lastPath);
+        ws.send(message);
+        resultDiv.innerHTML += `<br>✅ Verstuurd naar Pico: <code>${message}</code>`;
+        ws.close();
+    };
+
+    ws.onerror = () => {
+        resultDiv.innerHTML += `<br>❌ Verbindingsfout. Controleer het IP-adres en of de Pico verbonden is.`;
+    };
+
+    ws.onclose = () => {
+        console.log('WebSocket gesloten.');
+    };
 });

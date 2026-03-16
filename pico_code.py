@@ -38,7 +38,7 @@ def rijd_vooruit():
         #print(f"meetpin rechts:{calculate_voltage(meetpin_rechts_voor.value)}")
         #print(f"meetpin achter:{calculate_voltage(meetpin_achter.value)}")
 
-        links_op_lijn  = links_v < 0.9
+        links_op_lijn  = links_v < 0.9 #probeer 0.8 voor beide volgende zitting
         rechts_op_lijn = rechts_v > 0.7
 
         if links_op_lijn and rechts_op_lijn:

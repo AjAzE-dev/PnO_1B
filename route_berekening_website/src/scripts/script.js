@@ -144,12 +144,12 @@ document.getElementById('sendBtn').addEventListener('click', () => {
     ws.onopen = () => {
         const message = JSON.stringify(lastPath);
         ws.send(message);
-        resultDiv.innerHTML += `<br>✅ Verstuurd naar Pico: <code>${message}</code>`;
+        resultDiv.innerHTML += `<br>Verstuurd naar Pico: <code>${message}</code>`;
         ws.close();
     };
 
     ws.onerror = () => {
-        resultDiv.innerHTML += `<br>❌ Verbindingsfout. Controleer het IP-adres en of de Pico verbonden is.`;
+        resultDiv.innerHTML += `<br>Verbindingsfout. Controleer het IP-adres en of de Pico verbonden is.`;
     };
 
     ws.onclose = () => {

@@ -60,17 +60,27 @@ body {
 }
 
 
-/* save knop */
-#saveBtn {
+/* ip input */
+input {
+    color: black;
+    border: 2px solid black;
+    padding: 0.3rem;
+    text-align: center;
+}
+
+/* buttons */
+button {
     background-color: transparent;
+    color: black;
     border: 2px solid blue;
     padding: 0.5rem;
     font-size: 1.2rem;
     border-radius: 1.2rem;
 }
-#saveBtn:hover {
+button:hover {
     cursor: pointer;
 }
-#saveBtn:active {
+button:active {
     background-color: rgb(225, 225, 225);
 }
+

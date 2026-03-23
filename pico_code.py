@@ -38,8 +38,8 @@ def rijd_vooruit():
         #print(f"meetpin rechts:{calculate_voltage(meetpin_rechts_voor.value)}")
         #print(f"meetpin achter:{calculate_voltage(meetpin_achter.value)}")
 
-        links_op_lijn  = links_v < 0.9 #probeer 0.8 voor beide volgende zitting
-        rechts_op_lijn = rechts_v > 0.7
+        links_op_lijn  = links_v < 0.8 #probeer 0.8 voor beide volgende zitting
+        rechts_op_lijn = rechts_v < 0.8
 
         if links_op_lijn and rechts_op_lijn:
             print("goed vooruit aan het rijden")
@@ -74,7 +74,7 @@ def rijd_vooruit():
     right_direction.value = True
     left_power.value = True
     left_direction.value = True
-    time.sleep(0.3)  # pas aan naar jouw auto
+    time.sleep(0.3) 
     stop()
 
 
@@ -97,7 +97,9 @@ def draai_links():
     left_power.value = True
     left_direction.value = True
     time.sleep(0.3)
-    while calculate_voltage(meetpin_links_voor.value) > 0.8:
+    while calculate_voltage(meetpin_links_voor.value) > 0.8:  # wacht tot lijn NIET gezien
+        time.sleep(0.01)
+    while calculate_voltage(meetpin_links_voor.value) < 1:  # wacht tot lijn WEL gezien
         time.sleep(0.01)
     stop()
 
@@ -107,7 +109,9 @@ def draai_rechts():
     left_power.value = True
     left_direction.value = False
     time.sleep(0.3)
-    while calculate_voltage(meetpin_rechts_voor.value) > 0.8:
+    while calculate_voltage(meetpin_rechts_voor.value) > 0.8:  # wacht tot lijn NIET gezien
+        time.sleep(0.01)
+    while calculate_voltage(meetpin_rechts_voor.value) < 1:  # wacht tot lijn WEL gezien
         time.sleep(0.01)
     stop()
 

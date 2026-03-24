@@ -12,7 +12,12 @@ function backtrack(grid, r, c, end, visited, greens, path, totalGreens, start) {
     const cols = grid[0].length;
 
     if (r < 0 || r >= rows || c < 0 || c >= cols) return;
-    if (grid[r][c] === 1 || visited[r][c]) return;
+    if (grid[r][c] === 1) return;
+
+    const isLoop = end[0] === start[0] && end[1] === start[1];
+    const isEnd = r === end[0] && c === end[1];
+
+    if (visited[r][c] && !(isLoop && isEnd && path.length > 1)) return;
     if (bestPath !== null && path.length >= bestPath.length) return;
 
     visited[r][c] = true;
@@ -24,7 +29,9 @@ function backtrack(grid, r, c, end, visited, greens, path, totalGreens, start) {
         addedGreen = true;
     }
 
-    if (r === end[0] && c === end[1] && greens.size === totalGreens) {
+    const allGreens = greens.size === totalGreens;
+
+    if (isEnd && allGreens && (!isLoop || path.length > 1)) {
         if (bestPath === null || path.length < bestPath.length) {
             bestPath = path.slice();
         }
@@ -38,7 +45,9 @@ function backtrack(grid, r, c, end, visited, greens, path, totalGreens, start) {
     if (addedGreen) {
         greens.delete(`${r},${c}`);
     }
-    visited[r][c] = false;
+    if (!(isLoop && isEnd && path.length === 1)) {
+        visited[r][c] = false;
+    }
     path.pop();
 }
 
@@ -96,10 +105,14 @@ saveBtn.addEventListener('click', () => {
         }
     }
 
-    if (!start || !end) {
-        document.getElementById('result').innerHTML = 'Please set exactly one start (blue) and one end (purple).';
+    if (!start) {
+        document.getElementById('result').innerHTML = 'Stel minstens één startpunt in (blauw).';
         document.getElementById('sendBtn').disabled = true;
         return;
+    }
+
+    if (!end) {
+        end = start;
     }
 
     const totalGreens = grid.flat().filter(cell => cell === 2).length;

@@ -6,6 +6,7 @@ const bolletjes = [];
 let bestPath = null;
 let lastPath = null;
 let ws = null;
+let grid = null;
 
 function backtrack(grid, r, c, end, visited, greens, path, totalGreens, start) {
     const rows = grid.length;
@@ -86,7 +87,7 @@ for (let r = 1; r < rows; r++) {
 
 // Pad berekenen
 saveBtn.addEventListener('click', () => {
-    const grid = [];
+    grid = [];
     for (let r = 0; r < 4; r++) {
         const rowArray = [];
         for (let c = 0; c < 6; c++) {
@@ -138,9 +139,14 @@ saveBtn.addEventListener('click', () => {
 
 // Pad versturen naar Pico
 document.getElementById('sendBtn').addEventListener('click', () => {
-    if (!lastPath) return;
+    if (!lastPath || !grid) return;
 
     const ip = document.getElementById('picoIP').value.trim();
+    const groeneStops = lastPath.filter(([r, c]) => grid[r][c] === 2);
+    const message = JSON.stringify({ pad: lastPath, groen: groeneStops });
+
+    console.log('Versturen naar Pico:', message);
+
     if (!ip) {
         alert('Vul het IP-adres van de Pico in.');
         return;
@@ -155,7 +161,6 @@ document.getElementById('sendBtn').addEventListener('click', () => {
     ws = new WebSocket(`ws://${ip}/connect-websocket`);
 
     ws.onopen = () => {
-        const message = JSON.stringify(lastPath);
         ws.send(message);
         resultDiv.innerHTML += `<br>Verstuurd naar Pico: <code>${message}</code>`;
         ws.close();

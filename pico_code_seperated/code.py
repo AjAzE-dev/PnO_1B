@@ -8,7 +8,17 @@ from rijden      import Rijder
 from stappenmotor import Stappenmotor
 from pad         import Pad
 
-# --- Setup ---
+websocket = None
+ 
+def log(bericht):
+    #Print naar console en stuur naar de verbonden websocket client.
+    print(bericht)
+    if websocket is not None:
+        try:
+            websocket.send_message("LOG: " + str(bericht))
+        except Exception:
+            pass
+
 rijder       = Rijder()
 stappenmotor = Stappenmotor()
 pad          = Pad(rijder, stappenmotor)
@@ -18,7 +28,7 @@ SSID     = "PICO-TEAM-110"
 PASSWORD = "wachtwoord110"
 
 wifi.radio.start_ap(ssid=SSID, password=PASSWORD)
-print("My IP address is", wifi.radio.ipv4_address_ap)
+log("My IP address is", wifi.radio.ipv4_address_ap)
 
 pool      = socketpool.SocketPool(wifi.radio)
 server    = Server(pool, "/static", debug=True)
@@ -43,7 +53,7 @@ while True:
 
         if data is not None:
             cmd = data.strip()
-            print("RECEIVED:", repr(cmd))
+            log("RECEIVED:", repr(cmd))
 
             if cmd.startswith("{"):
                 try:
@@ -51,7 +61,7 @@ while True:
                     pad.laad_pad(payload["pad"], payload["groen"])
                     pad.voer_stap_uit()
                 except Exception as e:
-                    print("Fout bij parsen pad:", e)
+                    log("Fout bij parsen pad:", e)
 
             elif cmd == "waypoint":
                 pad.voer_stap_uit()

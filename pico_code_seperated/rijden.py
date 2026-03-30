@@ -3,12 +3,15 @@ import board
 import busio
 import adafruit_us100
 from analogio import AnalogIn
+from adafruit_httpserver import Server, Request, Response, GET, Websocket
 import time
 
 OBSTAKEL_DREMPEL_CM = 20
 
 class Rijder:
     def __init__(self):
+        self.log = log or print
+        
         # --- Motor pinnen ---
         self.right_power = digitalio.DigitalInOut(board.GP0)
         self.right_power.direction = digitalio.Direction.OUTPUT
@@ -47,7 +50,7 @@ class Rijder:
     def rijd_vooruit(self):
         while self.calculate_voltage(self.meetpin_achter.value) > 0.9 or  (time.monotonic() - self.huidige_tijd) < 0.3:
             if self.obstakel_gedetecteerd():
-                print("Obstakel gedetecteerd! Gestopt.")
+                self.log("Obstakel gedetecteerd! Gestopt.")
                 self.stop()
                 return
 
@@ -79,7 +82,7 @@ class Rijder:
         self.stop()
 
     def rijd_achteruit(self):
-        print("achteruit aan het rijden")
+        self.log("achteruit aan het rijden")
         self.right_power.value = True;  self.right_direction.value = False
         self.left_power.value  = True;  self.left_direction.value  = False
         time.sleep(0.5)
@@ -109,3 +112,4 @@ class Rijder:
             time.sleep(0.01)
         self.huidige_tijd = time.monotonic()
         self.stop()
+    

@@ -163,7 +163,10 @@ document.getElementById('sendBtn').addEventListener('click', () => {
     ws.onopen = () => {
         ws.send(message);
         resultDiv.innerHTML += `<br>Verstuurd naar Pico: <code>${message}</code>`;
-        ws.close();
+    };
+
+    ws.onmessage = (event) => {
+        console.log('Pico:', event.data);
     };
 
     ws.onerror = () => {

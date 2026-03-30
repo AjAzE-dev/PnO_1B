@@ -9,7 +9,7 @@ import time
 OBSTAKEL_DREMPEL_CM = 20
 
 class Rijder:
-    def __init__(self):
+    def __init__(self, log=None):
         self.log = log or print
         
         # --- Motor pinnen ---

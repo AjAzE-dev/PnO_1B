@@ -9,9 +9,9 @@ from stappenmotor import Stappenmotor
 from pad         import Pad
 
 websocket = None
- 
+
 def log(bericht):
-    #Print naar console en stuur naar de verbonden websocket client.
+    # Print naar console en stuur naar de verbonden websocket client.
     print(bericht)
     if websocket is not None:
         try:
@@ -19,9 +19,9 @@ def log(bericht):
         except Exception:
             pass
 
-rijder       = Rijder()
-stappenmotor = Stappenmotor()
-pad          = Pad(rijder, stappenmotor)
+rijder       = Rijder(log=log)
+stappenmotor = Stappenmotor(log=log)
+pad          = Pad(rijder, stappenmotor, log=log)
 
 # --- WiFi & server ---
 SSID     = "PICO-TEAM-110"

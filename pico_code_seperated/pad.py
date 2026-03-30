@@ -1,7 +1,8 @@
 class Pad:
-    def __init__(self, rijder, stappenmotor):
+    def __init__(self, rijder, stappenmotor, log=None):
         self.rijder       = rijder
         self.stappenmotor = stappenmotor
+        self.log = log or print
         self.instructies  = []
         self.groen_coords = []
         self.pad_index    = 0

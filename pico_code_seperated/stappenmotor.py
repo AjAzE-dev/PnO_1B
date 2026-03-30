@@ -5,7 +5,8 @@ import time
 step_delay = 0.001
 
 class Stappenmotor:
-    def __init__(self):
+    def __init__(self, log=None):
+        self.log = log or print
         self.IN1 = digitalio.DigitalInOut(board.GP18)
         self.IN2 = digitalio.DigitalInOut(board.GP19)
         self.IN3 = digitalio.DigitalInOut(board.GP20)

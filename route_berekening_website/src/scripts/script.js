@@ -1,8 +1,11 @@
 const container = document.querySelector('.container');
 const saveBtn = document.getElementById('saveBtn');
+const clearBtn = document.getElementById('clearBtn');
+
 const rows = 5;
 const cols = 7;
 const bolletjes = [];
+
 let bestPath = null;
 let lastPath = null;
 let ws = null;
@@ -43,12 +46,9 @@ function backtrack(grid, r, c, end, visited, greens, path, totalGreens, start) {
         }
     }
 
-    if (addedGreen) {
-        greens.delete(`${r},${c}`);
-    }
-    if (!(isLoop && isEnd && path.length === 1)) {
-        visited[r][c] = false;
-    }
+    if (addedGreen) greens.delete(`${r},${c}`);
+    if (!(isLoop && isEnd && path.length === 1)) visited[r][c] = false;
+
     path.pop();
 }
 
@@ -85,6 +85,22 @@ for (let r = 1; r < rows; r++) {
     }
 }
 
+// Grid herstellen uit localStorage
+const savedGrid = localStorage.getItem('savedGrid');
+if (savedGrid) {
+    const parsedGrid = JSON.parse(savedGrid);
+    for (let r = 0; r < parsedGrid.length; r++) {
+        for (let c = 0; c < parsedGrid[0].length; c++) {
+            const clicks = parsedGrid[r][c];
+            const b = bolletjes.find(item => item.row === r+1 && item.col === c+1);
+            if (b) {
+                b.element.dataset.clicks = clicks;
+                b.element.style.backgroundColor = ['white', 'red', 'green', 'blue', 'purple'][clicks];
+            }
+        }
+    }
+}
+
 // Pad berekenen
 saveBtn.addEventListener('click', () => {
     grid = [];
@@ -96,6 +112,8 @@ saveBtn.addEventListener('click', () => {
         }
         grid.push(rowArray);
     }
+
+    localStorage.setItem('savedGrid', JSON.stringify(grid));
 
     let start = null;
     let end = null;
@@ -135,6 +153,23 @@ saveBtn.addEventListener('click', () => {
         resultDiv.innerHTML = 'No valid path';
         document.getElementById('sendBtn').disabled = true;
     }
+});
+
+// Clear grid
+clearBtn.addEventListener('click', () => {
+    bolletjes.forEach(b => {
+        b.element.dataset.clicks = 0;
+        b.element.style.backgroundColor = 'white';
+    });
+
+    localStorage.removeItem('savedGrid');
+
+    bestPath = null;
+    lastPath = null;
+    grid = null;
+
+    document.getElementById('result').innerHTML = 'Grid leeggemaakt.';
+    document.getElementById('sendBtn').disabled = true;
 });
 
 // Pad versturen naar Pico

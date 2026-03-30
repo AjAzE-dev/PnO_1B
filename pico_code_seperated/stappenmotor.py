@@ -50,6 +50,6 @@ class Stappenmotor:
             self.Step4(); self.Step3(); self.Step2(); self.Step1()
 
     def plaats_toren(self):
-        print("Toren plaatsen...")
+        self.log("Toren plaatsen...")
         self.draai_links(127)
-        print("Toren geplaatst.")
+        self.log("Toren geplaatst.")

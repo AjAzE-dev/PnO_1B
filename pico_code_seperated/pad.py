@@ -11,9 +11,9 @@ class Pad:
         self.groen_coords = groen_coords
         self.instructies  = self._bereken_bochten(pad_coords)
         self.pad_index    = 0
-        self.log("Pad ontvangen:", pad_coords)
-        self.log("Groene stops:", groen_coords)
-        self.log("Instructies:", self.instructies)
+        self.log("Pad ontvangen: " + str(pad_coords))
+        self.log("Groene stops: " + str(groen_coords))
+        self.log("Instructies: " + str(self.instructies))
 
     def _bereken_richting(self, van, naar):
         dy = naar[0] - van[0]
@@ -70,7 +70,7 @@ class Pad:
 
         stap, coord = self.instructies[self.pad_index]
         self.pad_index += 1
-        self.log("Uitvoeren:", stap, "naar", coord)
+        self.log("Uitvoeren: " + str(stap) + " naar " + str(coord))
 
         if stap == "voor":
             self.rijder.rijd_vooruit()

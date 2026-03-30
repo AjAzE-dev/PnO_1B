@@ -22,7 +22,6 @@ body {
   padding: 1rem;
   display: flex;
   justify-content: center;
-  border: 2px solid black;
 }
 
 .container {
@@ -30,7 +29,6 @@ body {
   width: min(80%, 700px);
   height: calc(min(80vw, 550px) * 5 / 7);
   background: #f9f9f9;
-  border: 1px solid black;
 }
 
 /* lijnen */

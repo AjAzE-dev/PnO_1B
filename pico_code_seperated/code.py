@@ -1,0 +1,69 @@
+import socketpool
+import wifi
+import time
+import json
+from adafruit_httpserver import Server, Request, Response, GET, Websocket
+
+from rijden      import Rijder
+from stappenmotor import Stappenmotor
+from pad         import Pad
+
+# --- Setup ---
+rijder       = Rijder()
+stappenmotor = Stappenmotor()
+pad          = Pad(rijder, stappenmotor)
+
+# --- WiFi & server ---
+SSID     = "PICO-TEAM-110"
+PASSWORD = "wachtwoord110"
+
+wifi.radio.start_ap(ssid=SSID, password=PASSWORD)
+print("My IP address is", wifi.radio.ipv4_address_ap)
+
+pool      = socketpool.SocketPool(wifi.radio)
+server    = Server(pool, "/static", debug=True)
+websocket = None
+
+@server.route("/connect-websocket", GET)
+def connect_client(request: Request):
+    global websocket
+    if websocket is not None:
+        websocket.close()
+    websocket = Websocket(request)
+    return websocket
+
+server.start(str(wifi.radio.ipv4_address_ap), 80)
+
+# --- Hoofdlus ---
+while True:
+    server.poll()
+
+    if websocket is not None:
+        data = websocket.receive(fail_silently=True)
+
+        if data is not None:
+            cmd = data.strip()
+            print("RECEIVED:", repr(cmd))
+
+            if cmd.startswith("{"):
+                try:
+                    payload = json.loads(cmd)
+                    pad.laad_pad(payload["pad"], payload["groen"])
+                    pad.voer_stap_uit()
+                except Exception as e:
+                    print("Fout bij parsen pad:", e)
+
+            elif cmd == "waypoint":
+                pad.voer_stap_uit()
+            elif cmd == "move_forward":
+                rijder.rijd_vooruit()
+            elif cmd == "move_back":
+                rijder.rijd_achteruit()
+            elif cmd == "move_left":
+                rijder.draai_links()
+            elif cmd == "move_right":
+                rijder.draai_rechts()
+            elif cmd == "stop":
+                rijder.stop()
+
+    time.sleep(0.01)

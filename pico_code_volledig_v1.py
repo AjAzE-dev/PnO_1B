@@ -118,7 +118,8 @@ def stop():
     left_power.value  = False
 
 def rijd_vooruit():
-    while calculate_voltage(meetpin_achter.value) > 0.9:
+    global huidige_tijd
+    while calculate_voltage(meetpin_achter.value) > 0.9 or (time.monotonic() - huidige_tijd) < 0.3:
         if obstakel_gedetecteerd():
             print("Obstakel gedetecteerd! Gestopt.")
             stop()
@@ -148,18 +149,22 @@ def rijd_vooruit():
     right_power.value = True;  right_direction.value = True
     left_power.value  = True;  left_direction.value  = True
     time.sleep(0.3)
+    huidige_tijd = time.monotonic()
     stop()
 
 def rijd_achteruit():
+    global huidige_tijd
     print("achteruit aan het rijden")
     right_power.value = True;  right_direction.value = False
     left_power.value  = True;  left_direction.value  = False
     time.sleep(0.5)
     while calculate_voltage(meetpin_achter.value) > 0.8:
         time.sleep(0.1)
+    huidige_tijd = time.monotonic()
     stop()
 
 def draai_links():
+    global huidige_tijd
     right_power.value = True;  right_direction.value = False
     left_power.value  = True;  left_direction.value  = True
     time.sleep(0.3)
@@ -167,9 +172,11 @@ def draai_links():
         time.sleep(0.01)
     while calculate_voltage(meetpin_links_voor.value) < 1:
         time.sleep(0.01)
+    huidige_tijd = time.monotonic()
     stop()
 
 def draai_rechts():
+    global huidige_tijd
     right_power.value = True;  right_direction.value = True
     left_power.value  = True;  left_direction.value  = False
     time.sleep(0.3)
@@ -177,6 +184,7 @@ def draai_rechts():
         time.sleep(0.01)
     while calculate_voltage(meetpin_rechts_voor.value) < 1:
         time.sleep(0.01)
+    huidige_tijd = time.monotonic()
     stop()
 
 
@@ -269,6 +277,8 @@ print("My IP address is", wifi.radio.ipv4_address_ap)
 pool      = socketpool.SocketPool(wifi.radio)
 server    = Server(pool, "/static", debug=True)
 websocket = None
+
+huidige_tijd = time.monotonic()
 
 @server.route("/connect-websocket", GET)
 def connect_client(request: Request):

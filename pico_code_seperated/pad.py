@@ -62,6 +62,10 @@ class Pad:
             self.rijder.stop()
             return
 
+        if self.rijder.noodstop_actief:
+            self.log("Noodstop actief, pad gestopt.")
+            return
+
         if self.rijder.obstakel_gedetecteerd():
             self.log("Obstakel gedetecteerd! Pad onderbroken.")
             self.rijder.stop()

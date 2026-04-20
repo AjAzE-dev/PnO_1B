@@ -19,8 +19,8 @@ def log(bericht):
         except Exception:
             pass
 
-rijder       = Rijder(log=log)
 stappenmotor = Stappenmotor(log=log)
+rijder       = Rijder(stappenmotor, log=log)
 pad          = Pad(rijder, stappenmotor, log=log)
 
 # --- WiFi & server ---
@@ -74,5 +74,8 @@ while True:
                 rijder.draai_rechts()
             elif cmd == "stop":
                 rijder.stop()
+            elif cmd == "reset_noodstop":
+                rijder.noodstop_actief = False
+                log("Noodstop gereset.")
 
     time.sleep(0.01)

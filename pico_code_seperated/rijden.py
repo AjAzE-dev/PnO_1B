@@ -9,8 +9,10 @@ import time
 OBSTAKEL_DREMPEL_CM = 20
 
 class Rijder:
-    def __init__(self, log=None):
+    def __init__(self, stappenmotor, log=None):
         self.log = log or print
+        self.stappenmotor = stappenmotor
+
         
         # --- Motor pinnen ---
         self.right_power = digitalio.DigitalInOut(board.GP0)
@@ -30,6 +32,11 @@ class Rijder:
         # --- Ultrasone sensor (US-100) ---
         uart = busio.UART(board.GP4, board.GP5, baudrate=9600)
         self.us100 = adafruit_us100.US100(uart)
+        
+         # --- Noodstop knop ---
+        self.noodstop_knop = digitalio.DigitalInOut(board.GP22)
+        self.noodstop_knop.direction = digitalio.Direction.INPUT
+        self.noodstop_knop.pull = digitalio.Pull.UP
 
         self.huidige_tijd = time.monotonic()
 
@@ -47,10 +54,10 @@ class Rijder:
         self.right_power.value = False
         self.left_power.value  = False
 
-    def rijd_vooruit(self):
+    def rijd_vooruit(self, extra_tijd=None):
         while self.calculate_voltage(self.meetpin_achter.value) > 0.9 or  (time.monotonic() - self.huidige_tijd) < 0.3:
-            if self.obstakel_gedetecteerd():
-                self.log("Obstakel gedetecteerd! Gestopt.")
+            if self.noodstop_gedetecteerd() or self.obstakel_gedetecteerd():
+                self.log("obstakel gedecteerd of noodstop ingeduwd")
                 self.stop()
                 return
 
@@ -85,6 +92,8 @@ class Rijder:
         self.right_power.value = True;  self.right_direction.value = True
         self.left_power.value  = True;  self.left_direction.value  = True
         time.sleep(0.3)
+        if extra_tijd:
+            time.sleep(extra_tijd)
         self.huidige_tijd = time.monotonic()
         self.stop()
 
@@ -92,7 +101,7 @@ class Rijder:
         self.log("achteruit aan het rijden")
         self.right_power.value = True;  self.right_direction.value = False
         self.left_power.value  = True;  self.left_direction.value  = False
-        time.sleep(0.5)
+        time.sleep(0.3)
         while self.calculate_voltage(self.meetpin_achter.value) > 0.9:
             time.sleep(0.1)
         self.huidige_tijd = time.monotonic()
@@ -128,3 +137,21 @@ class Rijder:
         self.log("LDR rechts:" + str(self.calculate_voltage(self.meetpin_rechts_voor.value)))
         self.stop()
     
+    def positioneer_toren(self):
+        self.stop()
+        time.sleep(0.2)
+        self.rijd_achteruit()
+        self.rijd_vooruit(0.2) #dit moet ge teste tot het juist is
+        self.stop()
+        self.stappenmotor.plaats_toren()
+    
+    def noodstop_gedetecteerd(self):
+        # Pull.UP = knop ingedrukt is LOW
+        if not self.noodstop_knop.value:
+            self.noodstop_actief = True
+            self.log("NOODSTOP ingedrukt!")
+            self.stop()
+            return True
+        return False
+        
+        

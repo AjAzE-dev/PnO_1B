@@ -1,7 +1,6 @@
 class Pad:
     def __init__(self, rijder, stappenmotor, log=None):
-        self.rijder       = rijder
-        self.stappenmotor = stappenmotor
+        self.rijder = rijder
         self.log = log or print
         self.instructies  = []
         self.groen_coords = []
@@ -82,6 +81,8 @@ class Pad:
             self.rijder.rijd_vooruit()
 
         if self._is_groene_stop(coord):
-            self.stappenmotor.plaats_toren()
+            self.rijder.positioneer_toren()
 
         self.voer_stap_uit()
+    
+    

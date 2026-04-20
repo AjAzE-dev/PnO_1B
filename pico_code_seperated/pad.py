@@ -61,7 +61,7 @@ class Pad:
             self.log("Pad voltooid.")
             self.rijder.stop()
             return
-
+        '''
         if self.rijder.noodstop_actief:
             self.log("Noodstop actief, pad gestopt.")
             return
@@ -70,6 +70,7 @@ class Pad:
             self.log("Obstakel gedetecteerd! Pad onderbroken.")
             self.rijder.stop()
             return
+        '''
 
         stap, coord = self.instructies[self.pad_index]
         self.pad_index += 1

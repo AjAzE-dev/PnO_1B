@@ -2,7 +2,7 @@ Linksvoor (GP27):
     wit: 0.28 - 0.4
     zwart: 0.5 - 0.7
 
-Rechtsvoor (GP26):
+Rechtsvoor (GP28):
     wit: 0.2 - 0.4
     zwart: 0.4 - 0.6
 

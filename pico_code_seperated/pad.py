@@ -84,6 +84,10 @@ class Pad:
         elif stap == "draai_rechts":
             self.rijder.draai_rechts()
             self.rijder.rijd_vooruit()
+        elif stap == "achter":
+            self.rijder.draai_links()
+            self.rijder.draai_links()
+            self.rijder.rijd_vooruit()
 
         if self._is_groene_stop(coord):
             self.rijder.positioneer_toren()

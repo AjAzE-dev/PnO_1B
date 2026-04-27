@@ -61,16 +61,12 @@ class Rijder:
         self.left_power.value  = False
 
     def rijd_vooruit(self, extra_tijd=None):
-        self.right_power.value = True
-        self.left_power.value  = True
-        self.left_direction.value  = False
-        self.right_direction.value  = False
-        '''
+        
         while self.calculate_voltage(self.meetpin_achter.value) < 0.45 or  (time.monotonic() - self.huidige_tijd) < 0.3:
-            if self.noodstop_gedetecteerd() :#or self.obstakel_gedetecteerd():
-                self.log("obstakel gedecteerd of noodstop ingeduwd")
-                self.stop()
-                return
+            #if self.noodstop_gedetecteerd() :#or self.obstakel_gedetecteerd():
+                #self.log("obstakel gedecteerd of noodstop ingeduwd")
+                #self.stop()
+                #return
             
             links_v  = self.calculate_voltage(self.meetpin_links_voor.value)
             rechts_v = self.calculate_voltage(self.meetpin_rechts_voor.value)
@@ -108,7 +104,7 @@ class Rijder:
             time.sleep(extra_tijd)
         self.huidige_tijd = time.monotonic()
         self.stop()
-        '''
+        
 
     def rijd_achteruit(self):
         self.log("achteruit aan het rijden")
@@ -137,8 +133,8 @@ class Rijder:
 
     def draai_rechts(self):
         self.log("Rechts aan het draaien")
-        self.right_power.value = True;  self.right_direction.value = False
-        self.left_power.value  = True;  self.left_direction.value  = True
+        self.right_power.value = True;  self.right_direction.value = True
+        self.left_power.value  = True;  self.left_direction.value  = False
         time.sleep(0.3)
         #while self.calculate_voltage(self.meetpin_rechts_voor.value) > 0.95:
             #time.sleep(0.01)
@@ -158,6 +154,7 @@ class Rijder:
         self.stop()
         self.stappenmotor.plaats_toren()
     
+    """
     def noodstop_gedetecteerd(self):
         # Pull.UP = knop ingedrukt is LOW
         if not self.noodstop_knop.value:
@@ -166,5 +163,5 @@ class Rijder:
             self.stop()
             return True
         return False
-        
+    """    
         

@@ -86,19 +86,20 @@ class Rijder:
                 self.log("links niet op lijn")
                 self.log("LDR links:" + str(self.calculate_voltage(self.meetpin_links_voor.value)))
                 self.log("LDR rechts:" + str(self.calculate_voltage(self.meetpin_rechts_voor.value)))
-                self.right_power.value = True;  self.right_direction.value = False
-                self.left_power.value  = False; self.left_direction.value  = True
+                self.right_power.value = False
+                self.left_power.value  = True; self.left_direction.value  = False
             elif links_op_lijn and not rechts_op_lijn:
                 self.log("rechts niet op lijn")
                 self.log("LDR links:" + str(self.calculate_voltage(self.meetpin_links_voor.value)))
                 self.log("LDR rechts:" + str(self.calculate_voltage(self.meetpin_rechts_voor.value)))
-                self.right_power.value = False; self.right_direction.value = False
-                self.left_power.value  = True;  self.left_direction.value  = False
+                self.right_power.value = True; self.right_direction.value = False
+                self.left_power.value  = False
             else:
                 self.right_power.value = True;  self.right_direction.value = False
                 self.left_power.value  = True; self.left_direction.value  = True
 
             time.sleep(0.01)
+        
         self.log("over kruispunt gekomen nog beetje vooruit aan het rijden")
         self.right_power.value = True;  self.right_direction.value = False
         self.left_power.value  = True;  self.left_direction.value  = False

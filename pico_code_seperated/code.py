@@ -75,7 +75,7 @@ while True:
             elif cmd == "stop":
                 rijder.stop()
             elif cmd == "reset_noodstop":
-                #rijder.noodstop_actief = False
+                rijder.noodstop_actief = False
                 log("Noodstop gereset.")
 
     time.sleep(0.01)

@@ -57,41 +57,47 @@ class Pad:
         return False
 
     def voer_stap_uit(self):
-        if self.pad_index >= len(self.instructies):
-            self.log("Pad voltooid.")
-            self.rijder.stop()
-            return
-        '''
-        if self.rijder.noodstop_actief:
-            self.log("Noodstop actief, pad gestopt.")
-            return
+        while self.pad_index < len(self.instructies):
+            '''
+            if self.rijder.noodstop_actief:
+                self.log("Noodstop actief, pad gestopt.")
+                return
 
-        if self.rijder.obstakel_gedetecteerd():
-            self.log("Obstakel gedetecteerd! Pad onderbroken.")
-            self.rijder.stop()
-            return
-        '''
+            if self.rijder.obstakel_gedetecteerd():
+                self.log("Obstakel gedetecteerd! Pad onderbroken.")
+                self.rijder.stop()
+                return
+            '''
 
-        stap, coord = self.instructies[self.pad_index]
-        self.pad_index += 1
-        self.log("Uitvoeren: " + str(stap) + " naar " + str(coord))
+            stap, coord = self.instructies[self.pad_index]
+            self.pad_index += 1
+            self.log("Uitvoeren: " + str(stap) + " naar " + str(coord))
 
-        if stap == "voor":
-            self.rijder.rijd_vooruit()
-        elif stap == "draai_links":
-            self.rijder.draai_links()
-            self.rijder.rijd_vooruit()
-        elif stap == "draai_rechts":
-            self.rijder.draai_rechts()
-            self.rijder.rijd_vooruit()
-        elif stap == "achter":
-            self.rijder.draai_links()
-            self.rijder.draai_links()
-            self.rijder.rijd_vooruit()
+            groene_stop = self._is_groene_stop(coord)
 
-        if self._is_groene_stop(coord):
-            self.rijder.positioneer_toren()
+            if stap == "voor":
+                self.rijder.rijd_vooruit()
+                if groene_stop:
+                    self.rijder.positioneer_toren()
 
-        self.voer_stap_uit()
-    
-    
+            elif stap == "draai_links":
+                self.rijder.draai_links()
+                if groene_stop:
+                    self.rijder.positioneer_toren()
+                self.rijder.rijd_vooruit()
+
+            elif stap == "draai_rechts":
+                self.rijder.draai_rechts()
+                if groene_stop:
+                    self.rijder.positioneer_toren()
+                self.rijder.rijd_vooruit()
+
+            elif stap == "achter":
+                self.rijder.draai_links()
+                self.rijder.draai_links()
+                self.rijder.rijd_vooruit()
+                if groene_stop:
+                    self.rijder.positioneer_toren()
+
+        self.log("Pad voltooid.")
+        self.rijder.stop()

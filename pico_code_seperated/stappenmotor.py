@@ -7,10 +7,10 @@ step_delay = 0.001
 class Stappenmotor:
     def __init__(self, log=None):
         self.log = log or print
-        self.IN1 = digitalio.DigitalInOut(board.GP18)
-        self.IN2 = digitalio.DigitalInOut(board.GP19)
-        self.IN3 = digitalio.DigitalInOut(board.GP20)
-        self.IN4 = digitalio.DigitalInOut(board.GP21)
+        self.IN1 = digitalio.DigitalInOut(board.GP9)
+        self.IN2 = digitalio.DigitalInOut(board.GP8)
+        self.IN3 = digitalio.DigitalInOut(board.GP7)
+        self.IN4 = digitalio.DigitalInOut(board.GP6)
         self.IN5 = digitalio.DigitalInOut(board.GP13)
         self.IN6 = digitalio.DigitalInOut(board.GP12)
         self.IN7 = digitalio.DigitalInOut(board.GP11)
@@ -21,24 +21,45 @@ class Stappenmotor:
             pin.direction = digitalio.Direction.OUTPUT
             pin.value = False
 
-    def _step(self, pins_on):
-        for pin in (self.IN1, self.IN2, self.IN3, self.IN4,
-                    self.IN5, self.IN6, self.IN7, self.IN8):
-            pin.value = False
-        for pin in pins_on:
-            pin.value = True
+    def Step1(self):
+        self.IN4.value = True;  self.IN8.value = True;  self.IN5.value = True
         time.sleep(step_delay)
-        for pin in pins_on:
-            pin.value = False
+        self.IN4.value = False; self.IN8.value = False; self.IN5.value = False
 
-    def Step1(self): self._step([self.IN4, self.IN8, self.IN5])
-    def Step2(self): self._step([self.IN4, self.IN3, self.IN5])
-    def Step3(self): self._step([self.IN3, self.IN5, self.IN6])
-    def Step4(self): self._step([self.IN2, self.IN3, self.IN6])
-    def Step5(self): self._step([self.IN2, self.IN6, self.IN7])
-    def Step6(self): self._step([self.IN1, self.IN2, self.IN7])
-    def Step7(self): self._step([self.IN1, self.IN7, self.IN8])
-    def Step8(self): self._step([self.IN4, self.IN1, self.IN8])
+    def Step2(self):
+        self.IN4.value = True;  self.IN3.value = True;  self.IN5.value = True
+        time.sleep(step_delay)
+        self.IN4.value = False; self.IN3.value = False; self.IN5.value = False
+
+    def Step3(self):
+        self.IN3.value = True;  self.IN5.value = True;  self.IN6.value = True
+        time.sleep(step_delay)
+        self.IN3.value = False; self.IN5.value = False; self.IN6.value = False
+
+    def Step4(self):
+        self.IN2.value = True;  self.IN3.value = True;  self.IN6.value = True
+        time.sleep(step_delay)
+        self.IN2.value = False; self.IN3.value = False; self.IN6.value = False
+
+    def Step5(self):
+        self.IN2.value = True;  self.IN6.value = True;  self.IN7.value = True
+        time.sleep(step_delay)
+        self.IN2.value = False; self.IN6.value = False; self.IN7.value = False
+
+    def Step6(self):
+        self.IN1.value = True;  self.IN2.value = True;  self.IN7.value = True
+        time.sleep(step_delay)
+        self.IN1.value = False; self.IN2.value = False; self.IN7.value = False
+
+    def Step7(self):
+        self.IN1.value = True;  self.IN7.value = True;  self.IN8.value = True
+        time.sleep(step_delay)
+        self.IN1.value = False; self.IN7.value = False; self.IN8.value = False
+
+    def Step8(self):
+        self.IN4.value = True;  self.IN1.value = True;  self.IN8.value = True
+        time.sleep(step_delay)
+        self.IN4.value = False; self.IN1.value = False; self.IN8.value = False
 
     def draai_links(self, stappen):
         for _ in range(stappen):
@@ -52,5 +73,5 @@ class Stappenmotor:
 
     def plaats_toren(self):
         self.log("Toren plaatsen...")
-        self.draai_links(127)
+        self.draai_rechts(127)
         self.log("Toren geplaatst.")

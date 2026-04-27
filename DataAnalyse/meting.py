@@ -9,9 +9,9 @@ def calculate_voltage(value):
     return (value * 3.3) / 65535
 
 #meetpinnen
-meetpin_rechts_voor = AnalogIn(board.GP26)
+meetpin_rechts_voor = AnalogIn(board.GP28)
 meetpin_links_voor = AnalogIn(board.GP27)
-meetpin_achter = AnalogIn(board.GP28)
+meetpin_achter = AnalogIn(board.GP26)
 
 
 for i in range(1000):

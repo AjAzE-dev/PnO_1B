@@ -9,6 +9,7 @@ function connect_socket() {
     // Connection opened
     socket.addEventListener("open", (event) => {
         document.getElementById("status").textContent = "Status: Connected";
+        console.log("Connected")
     });
 
     socket.addEventListener("close", (event) => {
@@ -35,6 +36,16 @@ function disconnect_socket() {
 function sendCommand(command) {
     if(socket != undefined) {
         socket.send(command)
+    } else {
+        alert("Not connected to the PICO")
+    }
+}
+
+
+function sendCommand(command) {
+    if(socket != undefined) {
+        socket.send(command)
+        console.log("Verstuurd:", command)
     } else {
         alert("Not connected to the PICO")
     }

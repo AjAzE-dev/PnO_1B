@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P&O besturing</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- LEFT PANEL -->
+    <div class="left">
+        <div class="pad_input">
+            <p>Click on the grid:<br>
+            white=empty, red=obstacle, green=collect, blue=start, purple=end</p>
+
+            <input type="text" id="picoIP" placeholder="Pico IP" value="192.168.4.1">
+
+            <button id="connectBtn">Connect</button>
+
+            <div class="buttons">
+                <button id="saveBtn">Calculate Path</button>
+                <button id="sendBtn">Send to Wilfried</button>
+                <button id="clearBtn">Clear Grid</button>
+            </div>
+
+            <button class="stopBtn">STOP</button>
+        <div id="result"></div>
+        </div>
+
+
+        <div class="control">
+            <button onclick="sendCommand('move_forward')" class="move_button up_button">↑</button>
+            <button onclick="sendCommand('move_right')" class="move_button right_button">→</button>
+            <button onclick="sendCommand('move_back')" class="move_button down_button">↓</button>
+            <button onclick="sendCommand('move_left')" class="move_button left_button">←</button>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL (GRID) -->
+    <div class="right">
+        <div class="container"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

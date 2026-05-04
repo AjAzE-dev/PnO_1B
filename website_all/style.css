@@ -1,0 +1,198 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    font-family: sans-serif;
+    height: 100vh;
+}
+
+/* LEFT PANEL */
+.left {
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    padding: 2rem;
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+/* TOP BLOCK */
+.pad_input {
+    margin: 1rem;
+    background-color: whitesmoke;
+    padding: 2rem;
+    border-radius: 2rem;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* RESULT */
+#result {
+    margin-top: 1rem;
+}
+
+/* BUTTON ROW */
+.buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+#connectBtn {
+    margin-top: 1rem;
+    border: 1px solid black;
+}
+#connectBtn:hover {
+    background-color: black;
+}
+
+/* CONTROL GRID */
+.control {
+    margin: 1rem;
+    background-color: whitesmoke;
+    padding: 1.5rem;
+    border-radius: 2rem;
+
+    display: grid;
+    grid-template-columns: repeat(3, 80px);
+    grid-template-rows: repeat(3, 80px);
+    justify-content: center;
+    align-content: center;
+    gap: 0.5rem;
+}
+
+/* MOVE BUTTONS */
+.move_button {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    font-size: 1.8rem;
+    cursor: pointer;
+
+    border: 2px solid rgb(126, 67, 255);
+    background-color: transparent;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: all 0.15s ease;
+}
+
+.stopBtn {
+    width: 75px;
+    height: 75px;
+    margin-top: 1rem;
+    background-color: red;
+    color: white;
+    border: 3px solid red;
+    border-radius: 100%;
+    font-weight: bold;
+}
+.stopBtn:hover {
+    background-color: red;
+}
+
+.up_button { grid-column: 2; grid-row: 1; }
+.right_button { grid-column: 3; grid-row: 2; }
+.down_button { grid-column: 2; grid-row: 3; }
+.left_button { grid-column: 1; grid-row: 2; }
+
+.move_button:hover {
+    background-color: rgb(126, 67, 255);
+    color: white;
+}
+
+.move_button:active {
+    transform: scale(0.92);
+}
+
+/* INPUT + BUTTONS */
+input, button {
+    border: 2px solid rgb(126, 67, 255);
+    border-radius: 0.6rem;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+input {
+    padding: 0.4rem;
+    background-color: transparent;
+}
+
+button {
+    padding: 0.5rem 1rem;
+    background-color: transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+button:hover {
+    background-color: rgb(126, 67, 255);
+    color: white;
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* RIGHT SIDE */
+.right {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 3rem;
+    background-color: whitesmoke;
+    padding: 2rem;
+    border-radius: 2rem;
+}
+
+/* GRID CONTAINER */
+.container {
+    position: relative;
+    width: min(70%, 800px);
+    height: calc(min(70vw, 650px) * 5 / 7);
+    aspect-ratio: 7 / 5;
+    max-height: calc(100vh - 6rem);
+    max-width: calc((100vh - 6rem) * 7 / 5);
+}
+
+/* GRID LINES */
+.line {
+    position: absolute;
+    background-color: black;
+}
+
+.line.horizontal {
+    height: 2px;
+    width: 100%;
+}
+
+.line.vertical {
+    width: 2px;
+    height: 100%;
+}
+
+/* NODES */
+.bol {
+    position: absolute;
+    width: clamp(10px, 3vw, 40px);
+    height: clamp(10px, 3vw, 40px);
+    border-radius: 50%;
+    background-color: white;
+    border: 2px solid black;
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    transition: background-color 0.2s;
+}

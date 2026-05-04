@@ -7,7 +7,8 @@ import time
 OBSTAKEL_DREMPEL_CM = 7
 
 VOLLE_SNELHEID    = 1.0   # 100%
-CORRECTIE_SNELHEID = 0.5  # 60% — trager wiel bij zachte correctie
+CORRECTIE_SNELHEID = 0.3
+DRAAI_SNELHEID = 0.8
 
 
 def _snelheid_naar_duty(snelheid: float) -> int:
@@ -90,9 +91,13 @@ class Rijder:
         self._stop_motor('rechts')
         self._stop_motor('links')
 
-    def rijd_vooruit(self, extra_tijd=None):
+    def rijd_vooruit(self, correctie_tijd=None):
+        self._set_motor('rechts', 0.5, achteruit=False)
+        self._set_motor('links',  0.5, achteruit=False)
+        time.sleep(0.2)
+        
         while (self.calculate_voltage(self.meetpin_achter.value) < 0.5
-               or (time.monotonic() - self.huidige_tijd) < 0.3):
+               or (time.monotonic() - self.huidige_tijd) < 0.5):
 
             links_v  = self.calculate_voltage(self.meetpin_links_voor.value)
             rechts_v = self.calculate_voltage(self.meetpin_rechts_voor.value)
@@ -101,59 +106,77 @@ class Rijder:
             rechts_op_lijn = rechts_v > 0.5
 
             if links_op_lijn and rechts_op_lijn:
-                # Beide op lijn → volle snelheid
-                self.log("correct vooruit aan het rijden LDR achter:"
-                         + str(self.calculate_voltage(self.meetpin_achter.value)))
                 self._set_motor('rechts', VOLLE_SNELHEID, achteruit=False)
                 self._set_motor('links',  VOLLE_SNELHEID, achteruit=False)
 
             elif not links_op_lijn and rechts_op_lijn:
-                # Te ver naar rechts gedraaid → links vol, rechts traag om zacht naar links te corrigeren
-                self.log("links niet op lijn — zacht corrigeren naar links")
-                self.log("LDR links:"  + str(links_v))
-                self.log("LDR rechts:" + str(rechts_v))
                 self._set_motor('rechts', CORRECTIE_SNELHEID, achteruit=False)
                 self._set_motor('links',  VOLLE_SNELHEID,     achteruit=False)
 
             elif links_op_lijn and not rechts_op_lijn:
-                # Te ver naar links gedraaid → rechts vol, links traag om zacht naar rechts te corrigeren
-                self.log("rechts niet op lijn — zacht corrigeren naar rechts")
-                self.log("LDR links:"  + str(links_v))
-                self.log("LDR rechts:" + str(rechts_v))
                 self._set_motor('rechts', VOLLE_SNELHEID,     achteruit=False)
                 self._set_motor('links',  CORRECTIE_SNELHEID, achteruit=False)
 
             else:
-                # Beide sensoren missen de lijn (kruispunt of volledig naast) → rechtdoor
                 self._set_motor('rechts', VOLLE_SNELHEID, achteruit=False)
                 self._set_motor('links',  VOLLE_SNELHEID, achteruit=False)
-
+                
+            if correctie_tijd:
+                if time.monotonic() - self.huidige_tijd >= correctie_tijd:
+                    break
             time.sleep(0.01)
 
         self.log("over kruispunt gekomen nog beetje vooruit aan het rijden")
         self._set_motor('rechts', VOLLE_SNELHEID, achteruit=False)
         self._set_motor('links',  VOLLE_SNELHEID, achteruit=False)
-        time.sleep(0.3)
-        if extra_tijd:
-            time.sleep(extra_tijd)
+        if correctie_tijd is None:
+            time.sleep(0.3)
         self.huidige_tijd = time.monotonic()
         self.stop()
 
     def rijd_achteruit(self):
         self.log("achteruit aan het rijden")
-        self._set_motor('rechts', VOLLE_SNELHEID, achteruit=True)
-        self._set_motor('links',  VOLLE_SNELHEID, achteruit=True)
-        time.sleep(0.3)
-        while self.calculate_voltage(self.meetpin_achter.value) < 0.5:
-            time.sleep(0.1)
+        self._set_motor('rechts', 0.5, achteruit=True)
+        self._set_motor('links',  0.5, achteruit=True)
+        time.sleep(0.2)
+
+        while (self.calculate_voltage(self.meetpin_achter.value) < 0.5
+            or (time.monotonic() - self.huidige_tijd) < 0.3):
+
+            links_v  = self.calculate_voltage(self.meetpin_links_voor.value)
+            rechts_v = self.calculate_voltage(self.meetpin_rechts_voor.value)
+
+            links_op_lijn  = links_v  > 0.5
+            rechts_op_lijn = rechts_v > 0.5
+
+            if links_op_lijn and rechts_op_lijn:
+                self._set_motor('rechts', DRAAI_SNELHEID, achteruit=True)
+                self._set_motor('links',  DRAAI_SNELHEID, achteruit=True)
+
+            elif not links_op_lijn and rechts_op_lijn:
+                self._set_motor('rechts', DRAAI_SNELHEID, achteruit=True)
+                self._set_motor('links',  CORRECTIE_SNELHEID, achteruit=True)
+
+            elif links_op_lijn and not rechts_op_lijn:
+                self._set_motor('rechts', CORRECTIE_SNELHEID, achteruit=True)
+                self._set_motor('links',  DRAAI_SNELHEID, achteruit=True)
+
+            else:
+                self._set_motor('rechts', DRAAI_SNELHEID, achteruit=True)
+                self._set_motor('links',  DRAAI_SNELHEID, achteruit=True)
+
+            time.sleep(0.01)
+
         self.huidige_tijd = time.monotonic()
         self.stop()
 
     def draai_links(self):
         self.log("Links aan het draaien")
-        self._set_motor('rechts', VOLLE_SNELHEID, achteruit=False)
-        self._set_motor('links',  VOLLE_SNELHEID, achteruit=True)
-        time.sleep(0.3)
+        self._set_motor('rechts', 1, achteruit=False)
+        self._set_motor('links',  1, achteruit=True)
+        time.sleep(0.6)
+        self._set_motor('rechts', 0.3, achteruit=False)
+        self._set_motor('links',  0.3, achteruit=True)
         while self.calculate_voltage(self.meetpin_links_voor.value) < 0.5:
             time.sleep(0.01)
         self.huidige_tijd = time.monotonic()
@@ -161,12 +184,16 @@ class Rijder:
         self.log("LDR links:"  + str(self.calculate_voltage(self.meetpin_links_voor.value)))
         self.log("LDR rechts:" + str(self.calculate_voltage(self.meetpin_rechts_voor.value)))
         self.stop()
+        
 
     def draai_rechts(self):
         self.log("Rechts aan het draaien")
-        self._set_motor('rechts', VOLLE_SNELHEID, achteruit=True)
-        self._set_motor('links',  VOLLE_SNELHEID, achteruit=False)
-        time.sleep(0.3)
+        self.log(time.monotonic())
+        self._set_motor('rechts', 1, achteruit=True)
+        self._set_motor('links',  0.7, achteruit=False)
+        time.sleep(0.6)
+        self._set_motor('rechts', 0.4, achteruit=True)
+        self._set_motor('links',  0.3, achteruit=False)
         while self.calculate_voltage(self.meetpin_rechts_voor.value) < 0.5:
             time.sleep(0.01)
         self.huidige_tijd = time.monotonic()
@@ -175,18 +202,16 @@ class Rijder:
         self.log("LDR rechts:" + str(self.calculate_voltage(self.meetpin_rechts_voor.value)))
         self.stop()
     
-    def rijd_vooruit_tijd(self, seconden):
-        
-        self.log("Vooruit rijden voor " + str(seconden) + "s (tijdgebaseerd)")
-        self._set_motor('rechts', VOLLE_SNELHEID, achteruit=False)
-        self._set_motor('links',  VOLLE_SNELHEID, achteruit=False)
-        time.sleep(seconden)
-        self.huidige_tijd = time.monotonic()
-        self.stop()
 
     def positioneer_toren(self):
         self.stop()
-        time.sleep(2)
+        time.sleep(0.5)
+        self.huidige_tijd = time.monotonic()
+        self.rijd_vooruit(0.9)
+        time.sleep(0.2)
+        self.rijd_achteruit()
+        time.sleep(0.2)
+        self.rijd_vooruit(0.9)
         self.stappenmotor.plaats_toren()
 
     """

@@ -21,7 +21,7 @@ def log(bericht):
 
 stappenmotor = Stappenmotor(log=log)
 rijder       = Rijder(stappenmotor, log=log)
-pad          = Pad(rijder, stappenmotor, log=log)
+pad          = Pad(rijder, log=log)
 
 # --- WiFi & server ---
 SSID     = "PICO-TEAM-110"
@@ -56,12 +56,14 @@ while True:
 
             if cmd.startswith("{"):
                 try:
+                    #berekend pad word doorgestuurd
                     payload = json.loads(cmd)
                     pad.laad_pad(payload["pad"], payload["groen"])
                     pad.voer_stap_uit()
                 except Exception as e:
                     log("Fout bij parsen pad:" + str(e))
-
+                    
+            #aparte commands worden doorgestuurd
             elif cmd == "waypoint":
                 pad.voer_stap_uit()
             elif cmd == "move_forward":

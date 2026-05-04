@@ -1,5 +1,7 @@
+import time
+
 class Pad:
-    def __init__(self, rijder, stappenmotor, log=None):
+    def __init__(self, rijder, log=None):
         self.rijder = rijder
         self.log = log or print
         self.instructies  = []
@@ -61,6 +63,7 @@ class Pad:
             '''
             if self.rijder.noodstop_actief:
                 self.log("Noodstop actief, pad gestopt.")
+                self.rijder.stop()
                 return
 
             if self.rijder.obstakel_gedetecteerd():
@@ -70,34 +73,42 @@ class Pad:
             '''
 
             stap, coord = self.instructies[self.pad_index]
+            negeer, coord_waar_op_sta = self.instructies[self.pad_index-1]
+            groene_stop = self._is_groene_stop(coord_waar_op_sta)
             self.pad_index += 1
             self.log("Uitvoeren: " + str(stap) + " naar " + str(coord))
 
-            groene_stop = self._is_groene_stop(coord)
-
             if stap == "voor":
-                self.rijder.rijd_vooruit()
                 if groene_stop:
                     self.rijder.positioneer_toren()
+                self.rijder.huidige_tijd = time.monotonic()
+                self.rijder.rijd_vooruit()
 
             elif stap == "draai_links":
                 self.rijder.draai_links()
                 if groene_stop:
                     self.rijder.positioneer_toren()
+                self.rijder.huidige_tijd = time.monotonic()
                 self.rijder.rijd_vooruit()
 
             elif stap == "draai_rechts":
                 self.rijder.draai_rechts()
+                self.log("hoor nu klaar te zijn met rechts draaien")
+                self.log(time.monotonic())
                 if groene_stop:
                     self.rijder.positioneer_toren()
+                    self.log("Positioneer toren is nu klar")
+                    self.log(time.monotonic())
+                self.rijder.huidige_tijd = time.monotonic()
                 self.rijder.rijd_vooruit()
 
             elif stap == "achter":
                 self.rijder.draai_links()
                 self.rijder.draai_links()
-                self.rijder.rijd_vooruit()
                 if groene_stop:
                     self.rijder.positioneer_toren()
+                self.rijder.huidige_tijd = time.monotonic()
+                self.rijder.rijd_vooruit()
 
         self.log("Pad voltooid.")
         self.rijder.stop()

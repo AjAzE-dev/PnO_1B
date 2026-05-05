@@ -125,8 +125,8 @@ class Rijder:
         while (self.calculate_voltage(self.meetpin_achter.value) < 0.5
                or (time.monotonic() - self.huidige_tijd) < 0.5):
             
-            if self.noodstop_gedetecteerd() or self.obstakel_gedetecteerd():
-                return
+            #if self.noodstop_gedetecteerd() or self.obstakel_gedetecteerd():
+                #return
 
             links_v  = self.calculate_voltage(self.meetpin_links_voor.value)
             rechts_v = self.calculate_voltage(self.meetpin_rechts_voor.value)
@@ -172,8 +172,8 @@ class Rijder:
         while (self.calculate_voltage(self.meetpin_achter.value) < 0.5
             or (time.monotonic() - self.huidige_tijd) < 0.3):
 
-            if self.noodstop_gedetecteerd():
-                return
+            #if self.noodstop_gedetecteerd():
+                #return
             
             links_v  = self.calculate_voltage(self.meetpin_links_voor.value)
             rechts_v = self.calculate_voltage(self.meetpin_rechts_voor.value)
@@ -210,8 +210,8 @@ class Rijder:
         self._set_motor('rechts', 0.4, achteruit=False)
         self._set_motor('links',  0.4, achteruit=True)
         while self.calculate_voltage(self.meetpin_links_voor.value) < 0.5:
-            if self.noodstop_gedetecteerd() or self.obstakel_gedetecteerd():
-                return
+            #if self.noodstop_gedetecteerd() or self.obstakel_gedetecteerd():
+                #return
             time.sleep(0.01)
         self.huidige_tijd = time.monotonic()
         self.log("klaar met links draaien")
@@ -227,8 +227,8 @@ class Rijder:
         self._set_motor('rechts', 0.4, achteruit=True)
         self._set_motor('links',  0.3, achteruit=False)
         while self.calculate_voltage(self.meetpin_rechts_voor.value) < 0.5:
-            if self.noodstop_gedetecteerd() or self.obstakel_gedetecteerd():
-                return
+            #if self.noodstop_gedetecteerd() or self.obstakel_gedetecteerd():
+                #return
             time.sleep(0.01)
         self.huidige_tijd = time.monotonic()
         self.log("klaar met rechts draaien")

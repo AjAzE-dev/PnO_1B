@@ -62,7 +62,7 @@ while True:
                     pad.voer_stap_uit()
                 except Exception as e:
                     log("Fout bij parsen pad:" + str(e))
-                    
+
             #aparte commands worden doorgestuurd
             elif cmd == "waypoint":
                 pad.voer_stap_uit()

@@ -58,19 +58,27 @@ class Pad:
                 return True
         return False
 
+    def _obstakel_check(self):
+        """Geeft True terug als het pad onderbroken moet worden."""
+        if self.rijder.obstakel_actief:
+            self.log("Obstakel gedetecteerd! Pad onderbroken.")
+            return True
+        return False
+
     def voer_stap_uit(self):
         while self.pad_index < len(self.instructies):
             if self.rijder.noodstop_gedetecteerd():
                 self.log("Noodstop actief, pad gestopt.")
                 return
 
+            # Reset vlag voor nieuwe meting, dan check
+            self.rijder.obstakel_actief = False
             if self.rijder.obstakel_gedetecteerd():
                 self.log("Obstakel gedetecteerd! Pad onderbroken.")
-                self.rijder.stop()
                 return
 
             stap, coord = self.instructies[self.pad_index]
-            negeer, coord_waar_op_sta = self.instructies[self.pad_index-1]
+            negeer, coord_waar_op_sta = self.instructies[self.pad_index - 1]
             groene_stop = self._is_groene_stop(coord_waar_op_sta)
             self.pad_index += 1
             self.log("Uitvoeren: " + str(stap) + " naar " + str(coord))
@@ -85,6 +93,7 @@ class Pad:
             elif stap == "draai_links":
                 self.rijder.zet_led(blauw=True, groen=False, rood=False)
                 self.rijder.draai_links()
+                if self._obstakel_check(): return
                 if groene_stop:
                     self.rijder.positioneer_toren()
                 self.rijder.zet_led(blauw=True, groen=False, rood=False)
@@ -94,6 +103,7 @@ class Pad:
             elif stap == "draai_rechts":
                 self.rijder.zet_led(blauw=True, groen=False, rood=False)
                 self.rijder.draai_rechts()
+                if self._obstakel_check(): return
                 if groene_stop:
                     self.rijder.positioneer_toren()
                 self.rijder.zet_led(blauw=True, groen=False, rood=False)
@@ -103,12 +113,17 @@ class Pad:
             elif stap == "achter":
                 self.rijder.zet_led(blauw=True, groen=False, rood=False)
                 self.rijder.draai_links()
+                if self._obstakel_check(): return
                 self.rijder.draai_links()
+                if self._obstakel_check(): return
                 if groene_stop:
                     self.rijder.positioneer_toren()
                 self.rijder.zet_led(blauw=True, groen=False, rood=False)
                 self.rijder.huidige_tijd = time.monotonic()
                 self.rijder.rijd_vooruit()
+
+            # Na elke rijd_vooruit ook checken
+            if self._obstakel_check(): return
 
         self.log("Pad voltooid.")
         self.rijder.stop()

@@ -172,11 +172,11 @@ class Rijder:
 
     def draai_links(self):
         self.log("Links aan het draaien")
-        self._set_motor('rechts', 1, achteruit=False)
-        self._set_motor('links',  1, achteruit=True)
+        self._set_motor('rechts', 0.9, achteruit=False)
+        self._set_motor('links',  0.9, achteruit=True)
         time.sleep(0.6)
-        self._set_motor('rechts', 0.3, achteruit=False)
-        self._set_motor('links',  0.3, achteruit=True)
+        self._set_motor('rechts', 0.4, achteruit=False)
+        self._set_motor('links',  0.4, achteruit=True)
         while self.calculate_voltage(self.meetpin_links_voor.value) < 0.5:
             time.sleep(0.01)
         self.huidige_tijd = time.monotonic()
@@ -184,13 +184,11 @@ class Rijder:
         self.log("LDR links:"  + str(self.calculate_voltage(self.meetpin_links_voor.value)))
         self.log("LDR rechts:" + str(self.calculate_voltage(self.meetpin_rechts_voor.value)))
         self.stop()
-        
 
     def draai_rechts(self):
         self.log("Rechts aan het draaien")
-        self.log(time.monotonic())
         self._set_motor('rechts', 1, achteruit=True)
-        self._set_motor('links',  0.7, achteruit=False)
+        self._set_motor('links',  0.8, achteruit=False)
         time.sleep(0.6)
         self._set_motor('rechts', 0.4, achteruit=True)
         self._set_motor('links',  0.3, achteruit=False)
@@ -206,12 +204,17 @@ class Rijder:
     def positioneer_toren(self):
         self.stop()
         time.sleep(0.5)
+        
         self.huidige_tijd = time.monotonic()
-        self.rijd_vooruit(0.9)
+        self.rijd_vooruit(1)
         time.sleep(0.2)
+        
+        self.huidige_tijd = time.monotonic()
         self.rijd_achteruit()
         time.sleep(0.2)
-        self.rijd_vooruit(0.9)
+        
+        self.huidige_tijd = time.monotonic()
+        self.rijd_vooruit(0.75)
         self.stappenmotor.plaats_toren()
 
     """

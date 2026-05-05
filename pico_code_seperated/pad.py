@@ -93,12 +93,8 @@ class Pad:
 
             elif stap == "draai_rechts":
                 self.rijder.draai_rechts()
-                self.log("hoor nu klaar te zijn met rechts draaien")
-                self.log(time.monotonic())
                 if groene_stop:
                     self.rijder.positioneer_toren()
-                    self.log("Positioneer toren is nu klar")
-                    self.log(time.monotonic())
                 self.rijder.huidige_tijd = time.monotonic()
                 self.rijder.rijd_vooruit()
 

@@ -74,7 +74,7 @@ class Stappenmotor:
     def plaats_toren(self):
 
         self.log("Toren plaatsen...")
-        self.draai_rechts(127)
+        self.draai_rechts(150)
         time.sleep(0.2)
         #self.draai_links(127)
         self.log("Toren geplaatst.")

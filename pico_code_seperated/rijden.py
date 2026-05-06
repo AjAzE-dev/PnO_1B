@@ -2,6 +2,7 @@ import digitalio
 import board
 import pwmio
 import pulseio
+from us100_pio import US100PIO
 from analogio import AnalogIn
 import time
 
@@ -41,7 +42,7 @@ class Rijder:
         self.meetpin_rechts_voor = AnalogIn(board.GP28)
         self.meetpin_links_voor  = AnalogIn(board.GP27)
         self.meetpin_achter      = AnalogIn(board.GP26)
-
+        
         # --- Ultrasone afstandssensor ---
         self._trig = digitalio.DigitalInOut(board.GP16)
         self._trig.direction = digitalio.Direction.OUTPUT
@@ -49,20 +50,31 @@ class Rijder:
 
         self._echo = pulseio.PulseIn(board.GP17, maxlen=1, idle_state=False)
         self._echo.pause()
-
+        
+        #self.us100 = US100PIO(board.GP17, board.GP16)
+        
         # --- Noodstop ---
         self.noodstop_knop = digitalio.DigitalInOut(board.GP22)
         self.noodstop_knop.direction = digitalio.Direction.INPUT
-        self.noodstop_knop.pull = digitalio.Pull.UP
+        self.noodstop_knop.pull = None
 
         # --- LEDs ---
+        """
         self.led_blauw = digitalio.DigitalInOut(board.GP20)
-        self.led_groen = digitalio.DigitalInOut(board.GP19)
-        self.led_rood  = digitalio.DigitalInOut(board.GP18)
+        self.led_blauw.direction = digitalio.Direction.OUTPUT
+        self.led_blauw.value = False
+        self.log("blauw ok")
 
-        for led in (self.led_blauw, self.led_groen, self.led_rood):
-            led.direction = digitalio.Direction.OUTPUT
-            led.value = False
+        self.led_groen = digitalio.DigitalInOut(board.GP18)
+        self.led_groen.direction = digitalio.Direction.OUTPUT
+        self.led_groen.value = False
+        self.log("groen ok")
+
+        self.led_rood = digitalio.DigitalInOut(board.GP19)
+        self.led_rood.direction = digitalio.Direction.OUTPUT
+        self.led_rood.value = False
+        self.log("rood ok")
+        """
 
         self.huidige_tijd = time.monotonic()
 
@@ -93,6 +105,24 @@ class Rijder:
             self.left_pwm.duty_cycle = 0
 
     def obstakel_gedetecteerd(self):
+        '''
+        try:
+            afstand = self.us100.update()
+            if afstand is None:
+                return False
+            if afstand < OBSTAKEL_MIN_CM:
+                return False
+            if afstand < OBSTAKEL_DREMPEL_CM:
+                self.stop()
+                self.zet_led(blauw=False, groen=False, rood=True)
+                self.obstakel_actief = True
+                self.log("OBSTAKEL GEDETECTEERD")
+                return True
+            return False
+        except Exception:
+            return False
+        '''
+        
         # Stuur trigger-puls van 10 µs
         self._trig.value = False
         time.sleep(0.000002)
@@ -120,12 +150,13 @@ class Rijder:
 
         if afstand_cm < OBSTAKEL_DREMPEL_CM:
             self.stop()
-            self.zet_led(blauw=False, groen=False, rood=True)
+            #self.zet_led(rood=True)
             self.obstakel_actief = True
             self.log("OBSTAKEL GEDETECTEERD")
             return True
 
         return False
+        
 
     def zet_led(self, blauw=False, groen=False, rood=False):
         self.led_blauw.value = blauw
@@ -145,8 +176,8 @@ class Rijder:
         while (self.calculate_voltage(self.meetpin_achter.value) < 0.5
                or (time.monotonic() - self.huidige_tijd) < 0.5):
 
-            if self.noodstop_gedetecteerd() or self.obstakel_gedetecteerd():
-                return
+            #if self.obstakel_gedetecteerd():# or self.noodstop_gedetecteerd():
+                #return
 
             links_v  = self.calculate_voltage(self.meetpin_links_voor.value)
             rechts_v = self.calculate_voltage(self.meetpin_rechts_voor.value)
@@ -192,9 +223,9 @@ class Rijder:
         while (self.calculate_voltage(self.meetpin_achter.value) < 0.5
             or (time.monotonic() - self.huidige_tijd) < 0.3):
 
-            if self.noodstop_gedetecteerd() or self.obstakel_gedetecteerd():
-                return
-
+            #if self.obstakel_gedetecteerd() or self.noodstop_gedetecteerd():
+                #return
+            """
             links_v  = self.calculate_voltage(self.meetpin_links_voor.value)
             rechts_v = self.calculate_voltage(self.meetpin_rechts_voor.value)
 
@@ -216,7 +247,7 @@ class Rijder:
             else:
                 self._set_motor('rechts', DRAAI_SNELHEID, achteruit=True)
                 self._set_motor('links',  DRAAI_SNELHEID, achteruit=True)
-
+            """
             time.sleep(0.01)
 
         self.huidige_tijd = time.monotonic()
@@ -230,8 +261,8 @@ class Rijder:
         self._set_motor('rechts', 0.4, achteruit=False)
         self._set_motor('links',  0.4, achteruit=True)
         while self.calculate_voltage(self.meetpin_links_voor.value) < 0.5:
-            if self.noodstop_gedetecteerd() or self.obstakel_gedetecteerd():
-                return
+            #if self.obstakel_gedetecteerd() or self.noodstop_gedetecteerd():
+                #return
             time.sleep(0.01)
         self.huidige_tijd = time.monotonic()
         self.log("klaar met links draaien")
@@ -247,8 +278,8 @@ class Rijder:
         self._set_motor('rechts', 0.4, achteruit=True)
         self._set_motor('links',  0.3, achteruit=False)
         while self.calculate_voltage(self.meetpin_rechts_voor.value) < 0.5:
-            if self.noodstop_gedetecteerd() or self.obstakel_gedetecteerd():
-                return
+            #if self.obstakel_gedetecteerd() or self.noodstop_gedetecteerd():
+                #return
             time.sleep(0.01)
         self.huidige_tijd = time.monotonic()
         self.log("klaar met rechts draaien")
@@ -258,10 +289,10 @@ class Rijder:
 
 
     def positioneer_toren(self):
-        self.zet_led(blauw=False, groen=True, rood=False)
-        self.stop()
-        time.sleep(0.5)
-
+        self.zet_led(groen=True, rood=True)
+        #self.stop()
+        #time.sleep(0.5)
+        
         self.huidige_tijd = time.monotonic()
         self.rijd_vooruit(1)
         time.sleep(0.2)
@@ -269,7 +300,7 @@ class Rijder:
         self.huidige_tijd = time.monotonic()
         self.rijd_achteruit()
         time.sleep(0.2)
-
+        
         self.huidige_tijd = time.monotonic()
         self.rijd_vooruit(0.75)
         self.stappenmotor.plaats_toren()
@@ -278,7 +309,7 @@ class Rijder:
     def noodstop_gedetecteerd(self):
         if self.noodstop_knop.value:
             self.log("NOODSTOP ingedrukt!")
-            self.zet_led(blauw=False, groen=False, rood=True)
+            #self.zet_led(rood=True)
             self.stop()
             return True
         return False

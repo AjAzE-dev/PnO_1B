@@ -86,39 +86,39 @@ class Pad:
             if stap == "voor":
                 if groene_stop:
                     self.rijder.positioneer_toren()
-                self.rijder.zet_led(blauw=True, groen=False, rood=False)
+                #self.rijder.zet_led(blauw=True)
                 self.rijder.huidige_tijd = time.monotonic()
                 self.rijder.rijd_vooruit()
 
             elif stap == "draai_links":
-                self.rijder.zet_led(blauw=True, groen=False, rood=False)
+                #self.rijder.zet_led(blauw=True, groen=True)
                 self.rijder.draai_links()
                 if self._obstakel_check(): return
                 if groene_stop:
                     self.rijder.positioneer_toren()
-                self.rijder.zet_led(blauw=True, groen=False, rood=False)
+                #self.rijder.zet_led(blauw=True)
                 self.rijder.huidige_tijd = time.monotonic()
                 self.rijder.rijd_vooruit()
 
             elif stap == "draai_rechts":
-                self.rijder.zet_led(blauw=True, groen=False, rood=False)
+                #self.rijder.zet_led(blauw=True, groen=True)
                 self.rijder.draai_rechts()
                 if self._obstakel_check(): return
                 if groene_stop:
                     self.rijder.positioneer_toren()
-                self.rijder.zet_led(blauw=True, groen=False, rood=False)
+                #self.rijder.zet_led(blauw=True)
                 self.rijder.huidige_tijd = time.monotonic()
                 self.rijder.rijd_vooruit()
 
             elif stap == "achter":
-                self.rijder.zet_led(blauw=True, groen=False, rood=False)
+                #self.rijder.zet_led(blauw=True)
                 self.rijder.draai_links()
                 if self._obstakel_check(): return
                 self.rijder.draai_links()
                 if self._obstakel_check(): return
                 if groene_stop:
                     self.rijder.positioneer_toren()
-                self.rijder.zet_led(blauw=True, groen=False, rood=False)
+                #self.rijder.zet_led(blauw=True)
                 self.rijder.huidige_tijd = time.monotonic()
                 self.rijder.rijd_vooruit()
 

@@ -6,6 +6,7 @@ from analogio import AnalogIn
 import time
 
 OBSTAKEL_DREMPEL_CM = 6
+OBSTAKEL_MIN_CM     = 2   # metingen onder deze waarde zijn ruis
 
 VOLLE_SNELHEID     = 1.0   # 100%
 CORRECTIE_SNELHEID = 0.3
@@ -111,7 +112,11 @@ class Rijder:
         duration_us = self._echo[0]
         afstand_cm = (duration_us * 0.0343) / 2
 
-        self.log(f"Afstand: {afstand_cm:.1f} cm")
+        # self.log(f"Afstand: {afstand_cm:.1f} cm")
+
+        # Negeer metingen onder OBSTAKEL_MIN_CM als ruis
+        if afstand_cm < OBSTAKEL_MIN_CM:
+            return False
 
         if afstand_cm < OBSTAKEL_DREMPEL_CM:
             self.stop()
@@ -141,8 +146,7 @@ class Rijder:
                or (time.monotonic() - self.huidige_tijd) < 0.5):
 
             if self.noodstop_gedetecteerd() or self.obstakel_gedetecteerd():
-                self.rijder.stop()
-                return  # stop() is al aangeroepen binnen obstakel_gedetecteerd()
+                return
 
             links_v  = self.calculate_voltage(self.meetpin_links_voor.value)
             rechts_v = self.calculate_voltage(self.meetpin_rechts_voor.value)
@@ -189,7 +193,6 @@ class Rijder:
             or (time.monotonic() - self.huidige_tijd) < 0.3):
 
             if self.noodstop_gedetecteerd() or self.obstakel_gedetecteerd():
-                self.rijder.stop()
                 return
 
             links_v  = self.calculate_voltage(self.meetpin_links_voor.value)
@@ -228,7 +231,6 @@ class Rijder:
         self._set_motor('links',  0.4, achteruit=True)
         while self.calculate_voltage(self.meetpin_links_voor.value) < 0.5:
             if self.noodstop_gedetecteerd() or self.obstakel_gedetecteerd():
-                self.rijder.stop()
                 return
             time.sleep(0.01)
         self.huidige_tijd = time.monotonic()
@@ -246,7 +248,6 @@ class Rijder:
         self._set_motor('links',  0.3, achteruit=False)
         while self.calculate_voltage(self.meetpin_rechts_voor.value) < 0.5:
             if self.noodstop_gedetecteerd() or self.obstakel_gedetecteerd():
-                self.rijder.stop()
                 return
             time.sleep(0.01)
         self.huidige_tijd = time.monotonic()

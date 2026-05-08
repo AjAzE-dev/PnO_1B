@@ -7,7 +7,8 @@ from analogio import AnalogIn
 import time
 
 OBSTAKEL_DREMPEL_CM = 6
-OBSTAKEL_MIN_CM     = 2   # metingen onder deze waarde zijn ruis
+OBSTAKEL_MIN_CM     = 3   # metingen onder deze waarde zijn ruis
+
 
 VOLLE_SNELHEID     = 1.0   # 100%
 CORRECTIE_SNELHEID = 0.3
@@ -50,6 +51,8 @@ class Rijder:
 
         self._echo = pulseio.PulseIn(board.GP17, maxlen=1, idle_state=False)
         self._echo.pause()
+        
+        self.begin_time = 0
         
         #self.us100 = US100PIO(board.GP17, board.GP16)
         
@@ -105,24 +108,6 @@ class Rijder:
             self.left_pwm.duty_cycle = 0
 
     def obstakel_gedetecteerd(self):
-        '''
-        try:
-            afstand = self.us100.update()
-            if afstand is None:
-                return False
-            if afstand < OBSTAKEL_MIN_CM:
-                return False
-            if afstand < OBSTAKEL_DREMPEL_CM:
-                self.stop()
-                self.zet_led(blauw=False, groen=False, rood=True)
-                self.obstakel_actief = True
-                self.log("OBSTAKEL GEDETECTEERD")
-                return True
-            return False
-        except Exception:
-            return False
-        '''
-        
         # Stuur trigger-puls van 10 µs
         self._trig.value = False
         time.sleep(0.000002)
@@ -157,12 +142,12 @@ class Rijder:
 
         return False
         
-
+    """
     def zet_led(self, blauw=False, groen=False, rood=False):
         self.led_blauw.value = blauw
         self.led_groen.value = groen
         self.led_rood.value  = rood
-
+    """
 
     def stop(self):
         self._stop_motor('rechts')
@@ -176,8 +161,8 @@ class Rijder:
         while (self.calculate_voltage(self.meetpin_achter.value) < 0.5
                or (time.monotonic() - self.huidige_tijd) < 0.5):
 
-            #if self.obstakel_gedetecteerd():# or self.noodstop_gedetecteerd():
-                #return
+            if ((self.obstakel_gedetecteerd() and time.monotonic() - self.begin_time > 1) or self.noodstop_gedetecteerd()):
+                return
 
             links_v  = self.calculate_voltage(self.meetpin_links_voor.value)
             rechts_v = self.calculate_voltage(self.meetpin_rechts_voor.value)
@@ -216,15 +201,15 @@ class Rijder:
 
     def rijd_achteruit(self):
         self.log("achteruit aan het rijden")
-        self._set_motor('rechts', 0.5, achteruit=True)
+        self._set_motor('rechts', 0.6, achteruit=True)
         self._set_motor('links',  0.5, achteruit=True)
         time.sleep(0.2)
 
         while (self.calculate_voltage(self.meetpin_achter.value) < 0.5
             or (time.monotonic() - self.huidige_tijd) < 0.3):
 
-            #if self.obstakel_gedetecteerd() or self.noodstop_gedetecteerd():
-                #return
+            if self.obstakel_gedetecteerd() or self.noodstop_gedetecteerd():
+                return
             """
             links_v  = self.calculate_voltage(self.meetpin_links_voor.value)
             rechts_v = self.calculate_voltage(self.meetpin_rechts_voor.value)
@@ -255,14 +240,14 @@ class Rijder:
 
     def draai_links(self):
         self.log("Links aan het draaien")
-        self._set_motor('rechts', 0.9, achteruit=False)
+        self._set_motor('rechts', 0.9, achteruit=False) #0.9
         self._set_motor('links',  0.9, achteruit=True)
         time.sleep(0.6)
-        self._set_motor('rechts', 0.4, achteruit=False)
+        self._set_motor('rechts', 0.4, achteruit=False)#0.4
         self._set_motor('links',  0.4, achteruit=True)
         while self.calculate_voltage(self.meetpin_links_voor.value) < 0.5:
-            #if self.obstakel_gedetecteerd() or self.noodstop_gedetecteerd():
-                #return
+            if self.obstakel_gedetecteerd() or self.noodstop_gedetecteerd():
+                return
             time.sleep(0.01)
         self.huidige_tijd = time.monotonic()
         self.log("klaar met links draaien")
@@ -272,14 +257,14 @@ class Rijder:
 
     def draai_rechts(self):
         self.log("Rechts aan het draaien")
-        self._set_motor('rechts', 1,   achteruit=True)
-        self._set_motor('links',  0.8, achteruit=False)
+        self._set_motor('rechts', 1,   achteruit=True) #1
+        self._set_motor('links',  0.6, achteruit=False)#0.8
         time.sleep(0.6)
-        self._set_motor('rechts', 0.4, achteruit=True)
-        self._set_motor('links',  0.3, achteruit=False)
+        self._set_motor('rechts', 0.4, achteruit=True)#0.4
+        self._set_motor('links',  0.3, achteruit=False)#0.3
         while self.calculate_voltage(self.meetpin_rechts_voor.value) < 0.5:
-            #if self.obstakel_gedetecteerd() or self.noodstop_gedetecteerd():
-                #return
+            if self.obstakel_gedetecteerd() or self.noodstop_gedetecteerd():
+                return
             time.sleep(0.01)
         self.huidige_tijd = time.monotonic()
         self.log("klaar met rechts draaien")
@@ -289,7 +274,7 @@ class Rijder:
 
 
     def positioneer_toren(self):
-        self.zet_led(groen=True, rood=True)
+        #self.zet_led(groen=True, rood=True)
         #self.stop()
         #time.sleep(0.5)
         
@@ -303,6 +288,7 @@ class Rijder:
         
         self.huidige_tijd = time.monotonic()
         self.rijd_vooruit(0.75)
+        time.sleep(0.3)
         self.stappenmotor.plaats_toren()
 
 

@@ -158,10 +158,10 @@ class Rijder:
         return False
         
 
-    def zet_led(self, blauw=False, groen=False, rood=False):
-        self.led_blauw.value = blauw
-        self.led_groen.value = groen
-        self.led_rood.value  = rood
+    #def zet_led(self, blauw=False, groen=False, rood=False):
+     #   self.led_blauw.value = blauw
+      #  self.led_groen.value = groen
+       # self.led_rood.value  = rood
 
 
     def stop(self):
@@ -289,7 +289,7 @@ class Rijder:
 
 
     def positioneer_toren(self):
-        self.zet_led(groen=True, rood=True)
+        #self.zet_led(groen=True, rood=True)
         #self.stop()
         #time.sleep(0.5)
         

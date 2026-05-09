@@ -14,6 +14,29 @@ let bestPath = null;
 let lastPath = null;
 let socket = undefined;
 let grid = null;
+let klokInterval = null;
+let startTijd = null;
+
+// --- KLOK LOGICA ---
+
+function startKlok() {
+    startTijd = Date.now();
+    if (klokInterval) clearInterval(klokInterval);
+    klokInterval = setInterval(() => {
+        const verstreken = Date.now() - startTijd;
+        const seconden = Math.floor(verstreken / 1000);
+        const ms = Math.floor((verstreken % 1000) / 10);
+        document.getElementById('klok').textContent =
+            `${seconden}.${ms.toString().padStart(2, '0')}s`;
+    }, 50);
+}
+
+function stopKlok() {
+    if (klokInterval) {
+        clearInterval(klokInterval);
+        klokInterval = null;
+    }
+}
 
 // --- WEBSOCKET LOGICA ---
 
@@ -39,6 +62,9 @@ connectBtn.addEventListener('click', () => {
 
     socket.onmessage = (event) => {
         console.log("Pico response:", event.data);
+        if (event.data.includes("Pad voltooid")) {
+            stopKlok();
+        }
     };
 
     socket.onerror = (error) => {
@@ -77,25 +103,37 @@ document.querySelector('.stopBtn').addEventListener('click', () => {
 
 // --- GRID & PAD LOGICA ---
 
-function backtrack(grid, r, c, end, visited, greens, path, totalGreens, start) {
+// Richtingen: 0=omhoog, 1=rechts, 2=omlaag, 3=links
+const DIRS = [[-1, 0], [0, 1], [1, 0], [0, -1]];
+
+// State: (r, c, richting) — richting = aankomstrichting (4 = geen/start)
+// Dit laat de auto toe om 180° te draaien: dezelfde cel is bereikbaar
+// vanuit elke richting onafhankelijk, maar nooit tweemaal vanuit dezelfde richting.
+
+function backtrack(grid, r, c, dir, end, visited, greens, path, totalGreens, start) {
     const rows = grid.length;
     const cols = grid[0].length;
 
     if (r < 0 || r >= rows || c < 0 || c >= cols) return;
-    if (grid[r][c] === 1) return;
+    if (grid[r][c] === 1) return; // obstakel
 
     const isLoop = end[0] === start[0] && end[1] === start[1];
     const isEnd = r === end[0] && c === end[1];
 
-    if (visited[r][c] && !(isLoop && isEnd && path.length > 1)) return;
+    // Bezoek-check op (cel, richting): elke aankomstrichting telt apart
+    const stateKey = `${r},${c},${dir}`;
+    if (visited.has(stateKey)) return;
+
+    // Snoei: pad is al langer dan beste gevonden pad
     if (bestPath !== null && path.length >= bestPath.length) return;
 
-    visited[r][c] = true;
+    visited.add(stateKey);
     path.push([r, c]);
 
     let addedGreen = false;
-    if (grid[r][c] === 2 && !greens.has(`${r},${c}`)) {
-        greens.add(`${r},${c}`);
+    const cellKey = `${r},${c}`;
+    if (grid[r][c] === 2 && !greens.has(cellKey)) {
+        greens.add(cellKey);
         addedGreen = true;
     }
 
@@ -106,14 +144,14 @@ function backtrack(grid, r, c, end, visited, greens, path, totalGreens, start) {
             bestPath = path.slice();
         }
     } else {
-        const directions = [[1, 0], [-1, 0], [0, 1], [0, -1]];
-        for (let [dr, dc] of directions) {
-            backtrack(grid, r + dr, c + dc, end, visited, greens, path, totalGreens, start);
+        for (let d = 0; d < 4; d++) {
+            const [dr, dc] = DIRS[d];
+            backtrack(grid, r + dr, c + dc, d, end, visited, greens, path, totalGreens, start);
         }
     }
 
-    if (addedGreen) greens.delete(`${r},${c}`);
-    if (!(isLoop && isEnd && path.length === 1)) visited[r][c] = false;
+    if (addedGreen) greens.delete(cellKey);
+    visited.delete(stateKey);
     path.pop();
 }
 
@@ -195,13 +233,14 @@ saveBtn.addEventListener('click', () => {
 
     const totalGreens = grid.flat().filter(cell => cell === 2).length;
     bestPath = null;
-    const visited = Array.from({ length: grid.length }, () => Array(grid[0].length).fill(false));
 
-    backtrack(grid, start[0], start[1], end, visited, new Set(), [], totalGreens, start);
+    // Start met richting 4 (geen richting = startpositie)
+    backtrack(grid, start[0], start[1], 4, end, new Set(), new Set(), [], totalGreens, start);
 
     if (bestPath) {
         lastPath = bestPath;
         resultDiv.innerHTML = `Pad gevonden! Lengte: ${bestPath.length}`;
+        console.log("Kortste pad:", JSON.stringify(lastPath));
     } else {
         lastPath = null;
         resultDiv.innerHTML = 'Geen geldig pad mogelijk.';
@@ -232,6 +271,7 @@ sendBtn.addEventListener('click', () => {
     if (socket && socket.readyState === WebSocket.OPEN) {
         socket.send(message);
         resultDiv.innerHTML = `Pad verstuurd naar Pico!`;
+        startKlok();
     } else {
         resultDiv.innerHTML = '<span style="color:red">Niet verbonden. Druk eerst op Connect.</span>';
     }

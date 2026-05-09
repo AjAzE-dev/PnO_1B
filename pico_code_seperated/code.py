@@ -75,7 +75,9 @@ while True:
             elif cmd == "move_right":
                 rijder.draai_rechts()
             elif cmd == "stop":
+                rijder.websocket_stop = True
                 rijder.stop()
+                rijder.zet_led_rgb(0, 0, 0)
             elif cmd == "reset_noodstop":
                 rijder.noodstop_actief = False
                 log("Noodstop gereset.")
